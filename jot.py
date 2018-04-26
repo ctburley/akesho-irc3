@@ -60,7 +60,7 @@ class Plugin:
 			count = 0
 			for k in jot:
 				if ((key.lower() in k) or (key.lower() in jot[k]['value'].lower())):
-					result = result + "| " + k + " "
+					result = result + " ;" + k + " "
 					count+=1
 			if (count > 0):
 				self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
