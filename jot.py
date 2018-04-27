@@ -33,6 +33,20 @@ class Plugin:
 			for channel in self.jots:
 				channels[channel] = self.jots[channel]
 	
+	def jot_read(self, key, channel='g#l#o#b#a#l'):
+		if channel in self.jots:
+			if key.lower() in self.jots[channel]:
+				return self.jots[channel][key.lower()]
+		return None
+	
+	def jot_write(self, key, value, nick, channel='g#l#o#b#a#l'):
+		if channel not in self.jots:
+			self.jots[channel] = {}
+		if key not in self.jots[channel]
+			self.jots[channel][key.lower()] = {'key':key, 'from':nick 'value':data}
+			return True
+		return False
+	
 	@irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<target>\S+) :(?P<data>.*)$')
 	def jot_core(self, nick, target, data, **kw):
 		if (self.bot.obeying_commands(target)):
