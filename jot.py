@@ -15,7 +15,6 @@ class Plugin:
 			'search':	(re.compile('^'+self.controlchar+'\?(?P<key>[\w\s]+?)\s*$'), self.jot_search, ['key']),
 			'remove':	(re.compile('^'+self.controlchar+'-(?P<key>[\w\s]+?)\s*$'), self.jot_remove, ['key'])
 		}
-		self.reserved = [ 'help' ]
 		
 		print("JOT ~ LOADED")
 			
@@ -23,7 +22,17 @@ class Plugin:
 	def reload(cls, old):
 		return cls(old.bot)
 	
-
+	def jot_load(self):
+		self.jots = {}
+		with shelve.open(self.jotfile) as channels:
+			for channel in channels:
+				self.jots[channel] = channels[channel]
+	
+	def jot_save(self):
+		with shelve.open(self.jotfile) as channels:
+			for channel in self.jots:
+				channels[channel] = self.jots[channel]
+	
 	@irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<target>\S+) :(?P<data>.*)$')
 	def jot_core(self, nick, target, data, **kw):
 		if (self.bot.obeying_commands(target)):
@@ -56,7 +65,7 @@ class Plugin:
 	
 	def jot_search(self, nick, target, key):
 		with shelve.open(self.jotfile) as jot:
-			result = "Results"
+			result = "Results "
 			count = 0
 			for k in jot:
 				if ((key.lower() in k) or (key.lower() in jot[k]['value'].lower())):
