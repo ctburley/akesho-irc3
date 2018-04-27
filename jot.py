@@ -82,3 +82,12 @@ class Plugin:
 				if (key in jot):
 					del jot[key]
 					self.bot.privmsg(nick, 'Ok.')
+	
+	@command
+	def jot_dump(self, m,t,a):
+		"""mwememem
+			%%jot_dump
+		"""
+		with shelve.open('jot.shelf') as jot:
+			for key in jot:
+				print (jot[key]['key'] + " = " jot[key]['value']) 
