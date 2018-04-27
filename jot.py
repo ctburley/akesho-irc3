@@ -15,11 +15,12 @@ class Plugin:
 			'search':	(re.compile('^'+self.controlchar+'\?(?P<key>[\w\s]+?)\s*$'), self.jot_search, ['key']),
 			'remove':	(re.compile('^'+self.controlchar+'-(?P<key>[\w\s]+?)\s*$'), self.jot_remove, ['key'])
 		}
-		
+		self.jot_load()
 		print("JOT ~ LOADED")
 			
 	@classmethod
 	def reload(cls, old):
+		self.jot_save()
 		return cls(old.bot)
 	
 	def jot_load(self):
@@ -33,17 +34,20 @@ class Plugin:
 			for channel in self.jots:
 				channels[channel] = self.jots[channel]
 	
-	def jot_read(self, key, channel='g#l#o#b#a#l'):
+	def jot_read(self, key, channel):
+		key = key.lower()
 		if channel in self.jots:
-			if key.lower() in self.jots[channel]:
-				return self.jots[channel][key.lower()]
+			if key in self.jots[channel]:
+				return self.jots[channel][key]
+			if key in self.jots['g#l#o#b#a#l']:
+				return self.jots['g#l#o#b#a#l'][key]
 		return None
 	
 	def jot_write(self, key, value, nick, channel='g#l#o#b#a#l'):
 		if channel not in self.jots:
 			self.jots[channel] = {}
 		if key not in self.jots[channel]
-			self.jots[channel][key.lower()] = {'key':key, 'from':nick 'value':data}
+			self.jots[channel][key.lower()] = {'key':key, 'from':nick 'value':value}
 			return True
 		return False
 	
@@ -60,38 +64,32 @@ class Plugin:
 					func(nick, target, *arglist)
 	
 	def jot_add(self, nick, target, key, data):
-		with shelve.open(self.jotfile) as jot:
-			if (key.lower() not in jot):
-				jot[key.lower()] = {'key':key, 'from':nick, 'verb':'=', 'value':data}
-				self.bot.privmsg(nick, 'Ok.')
-			else:
-				self.bot.privmsg(nick, "The key '"+key+"' already exists.")
+		if (self.jot_write(key, data, nick, target)):
+			self.bot.privmsg(nick, 'Ok.')
+		else:
+			self.bot.privmsg(nick, "The key '"+key+"' already exists.")
 			
 	def jot_get(self, nick, target, key, at=None):
-		with shelve.open(self.jotfile) as jot:
+		jot = self.jot_read(key, target)
+		if jot:
 			nick = at if at is not None else nick
-			key = key.lower()
-			if (key in jot):
-					if (jot[key]['verb'] == '='):
-						self.bot.privmsg(target, nick + ": " + jot[key]['value'])
-					else:
-						return self.bot.privmsg(target, nick + ": " + jot[key]['key'] + " " + jot[key]['verb'] + " " + jot[key]['value'])
-	
+			self.bot.privmsg(target, nick + ": " + jot[key]['value'])
+			
 	def jot_search(self, nick, target, key):
 		with shelve.open(self.jotfile) as jot:
 			result = "Results "
 			count = 0
-			for k in jot:
-				if ((key.lower() in k) or (key.lower() in jot[k]['value'].lower())):
-					result = result + " ;" + k + " "
-					count+=1
-			if (count > 0):
-				self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
+			if target in self.jots:
+				for k in self.jots[target]:
+					if ((key.lower() in k) or (key.lower() in self.jots[target][k]['value'].lower())):
+						result = result + " ;" + k + " "
+						count+=1
+			self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
 		
 	def jot_remove(self, nick, target, key):
 		if nick in list(self.bot.channels[target].modes['@']):
-			with shelve.open(self.jotfile) as jot:
-				key = key.lower()
-				if (key in jot):
-					del jot[key]
+			key = key.lower()
+			if target in self.jots:
+				if key in self.jots[target]:
+					del self.jots[target][key]
 					self.bot.privmsg(nick, 'Ok.')
