@@ -8,7 +8,7 @@ class Plugin:
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.jotfile = 'jotfile'
+		self.jotfile = '.jots'
 		self.controlchar = '>'
 		self.features = {
 			'add':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)\s*=\s*(?P<global>-g)?\s*(?P<data>.*)$'), self.jot_add, ['key', 'data', 'global']),
