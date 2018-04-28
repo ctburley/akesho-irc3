@@ -54,16 +54,18 @@ class Plugin:
 			self.bot.privmsg(target, nick + ": " + choice(jot['value']))
 			
 	def jot_search(self, nick, target, key):
-		with shelve.open(self.jotfile) as jot:
-			result = "Results "
-			count = 0
-			if target in self.jots:
-				for k in self.jots[target]:
-					if key.lower() in k:
-						result = result + " " + self.controlchar + k + " "
-						count+=1
-			self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
-		
+		result = "Results "
+		count = 0
+		if target in self.jots:
+			for k in self.jots[target]:
+				if key.lower() in k:
+					result = result + " " + self.controlchar + k + " "
+					count+=1
+		for k in self.jots['g#l#o#b#a#l']:
+			if key.lower() in k:
+				result = result + " " + self.controlchar + K + " "
+		self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
+	
 	def jot_remove(self, nick, target, key, globl=None):
 		if nick in list(self.bot.channels[target].modes['@']):
 			if globl is not None:
