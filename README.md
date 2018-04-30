@@ -1,4 +1,4 @@
-============================================================
+
 modules for irc3 pluggable irc client library 
 ============================================================
 Modules I have written to use for my irc bot(s).
