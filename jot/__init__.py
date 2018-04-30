@@ -8,7 +8,7 @@ class Plugin:
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.jotfile = '.jots'
+		self.jotfile = 'jot/.jots'
 		self.controlchar = '>'
 		if 'jot' in self.bot.config:
 			if 'jotfile' in self.bot.config['jot']:
