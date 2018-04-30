@@ -10,6 +10,12 @@ class Plugin:
 		self.bot = bot
 		self.jotfile = '.jots'
 		self.controlchar = '>'
+		if 'jot' in self.bot.config:
+			if 'jotfile' in self.bot.config['jot']:
+				self.jotfile = self.bot.config['jot']['jotfile']
+			if 'controlchar' in self.bot.config['jot']:
+				self.controlchar = self.bot.config['jot']['controlchar']
+				
 		self.features = {
 			'add':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)\s*=\s*(?P<global>-g)?\s*(?P<data>.*)$'), self.jot_add, ['key', 'data', 'global']),
 			'also':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)\s*\|=\s*(?P<global>-g)?\s*(?P<data>.*)$'), self.jot_also, ['key', 'data', 'global']),

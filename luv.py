@@ -27,3 +27,9 @@ class Plugin:
 		if self.bot.obeying_commands(channel):
 			self.bot.privmsg(channel, choice(self.opts)+('' if luv is None else ' ' + (' '.join(luv.split()))))
 	
+	#@command
+	#def hug(self, mask, channel, args):
+	#	"""Hug someone!
+	#		%%hug <someone>...
+	#	"""
+	#	wraps " + target + " in (2-13) different arms and squeezes until they look like a koosh toy
