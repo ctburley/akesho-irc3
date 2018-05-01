@@ -8,7 +8,7 @@ class Plugin:
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.jotfile = 'jot/.jots'
+		self.jotfile = '.jots'
 		self.controlchar = '>'
 		if 'jot' in self.bot.config:
 			if 'jotfile' in self.bot.config['jot']:
@@ -17,12 +17,12 @@ class Plugin:
 				self.controlchar = self.bot.config['jot']['controlchar']
 				
 		self.features = {
-			'add':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)\s*=\s*(?P<global>-g)?\s*(?P<data>.*)$'), self.jot_add, ['key', 'data', 'global']),
-			'also':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)\s*\|=\s*(?P<global>-g)?\s*(?P<data>.*)$'), self.jot_also, ['key', 'data', 'global']),
+			'add':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*=\s*(?P<data>.*)$'), self.jot_add, ['key', 'data', 'global']),
+			'also':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)$'), self.jot_also, ['key', 'data', 'global']),
 			'get':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*$'), self.jot_get, ['key', 'global']),
 			'tell':	(re.compile('^'+self.controlchar+'(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)\s*$'), self.jot_get, ['key', 'global', 'at']),
 			'search':	(re.compile('^'+self.controlchar+'\?(?P<key>[\w\s]+?)\s*$'), self.jot_search, ['key']),
-			'remove':	(re.compile('^'+self.controlchar+'-(?P<key>[\w\s]+?)\s*(?P<global>-g)?$'), self.jot_remove, ['key', 'global'])}
+			'remove':	(re.compile('^'+self.controlchar+'-(?P<key>[\w\s]+?)(?P<global>\s*-g)?$'), self.jot_remove, ['key', 'global'])}
 		self.jot_load()
 		print("JOT ~ LOADED")
 			
