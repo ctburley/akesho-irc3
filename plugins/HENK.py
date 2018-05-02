@@ -12,7 +12,7 @@ class Plugin:
     def __init__(self, bot):
         self.bot = bot
         
-        self.directory = './deks/'
+        self.directory = './data/deks/'
         
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)

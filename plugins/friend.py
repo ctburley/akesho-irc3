@@ -6,7 +6,8 @@ class Plugin:
 
 	def __init__(self, bot):
 		self.bot = bot
-		if (os.path.isfile('friends')):
+		self.botfile = './data/friends'
+		if (os.path.isfile(self.botfile)):
 			print("friends file found.")
 
 	@classmethod
@@ -14,14 +15,14 @@ class Plugin:
 		return cls(old.bot)
 	
 	def get_record(self, nick):
-		with shelve.open('friends') as fr:
+		with shelve.open(self.botfile) as fr:
 			if nick in fr:
 				return fr[nick]
 		return None
 	
 	def set_record(self, nick, record):
 		if record is not None:
-			with shelve.open('friends') as fr:
+			with shelve.open(self.botfile) as fr:
 				fr[nick] = record
 	
 	@irc3.event('^(@(?P<tags>\S+) )?:(?P<nick>\S+)(?P<mask>!\S+@\S+) PRIVMSG (?P<channel>\S+) :\.befs$')
