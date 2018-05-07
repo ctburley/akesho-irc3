@@ -17,6 +17,8 @@ class Plugin:
             # key [-g ]|= value
             'also':   ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)',                    self.jot_also,   ['key', 'data', 'global']],
             
+            # key[.#] -g ~=
+            
             # key[.#] [-g]
             'get':    ['(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*',                   self.jot_get,    ['key', 'rpi', 'global']],
             
@@ -27,7 +29,10 @@ class Plugin:
             'search': ['\?(?P<key>[\w\s]+?)\s*',                                                      self.jot_search, ['key']],
             
             # -key[.#] [-g]
-            'remove': ['-(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*',                  self.jot_remove, ['key', 'rpi', 'global']]
+            'remove': ['-(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*',                  self.jot_remove, ['key', 'rpi', 'global']],
+            
+            # double command character save + nick is opped in channel
+            'save':   [self.controlchar+'save\s*',                                                    self.jot_force_save,   []],
         }
         # compile feature regexps
         for feature in self.features:
@@ -132,7 +137,12 @@ class Plugin:
                 self.jots[channel] = channels[channel]
         if '' not in self.jots:
             self.jots[''] = {}
-
+    
+    def jot_force_save(self, nick, target):
+        if nick not in list(self.bot.channels[target].modes['@']):
+            return
+        self.jot_save()
+        self.bot.privmsg(nick, 'Ok.')
     @cron('*/5 * * * *')
     def jot_save(self):
         with shelve.open(self.jotfile) as channels:
