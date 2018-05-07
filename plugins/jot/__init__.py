@@ -11,12 +11,18 @@ class Plugin:
         self.controlchar = self.bot.config.get('jot', {}).get('controlchar','>')
         
         self.features = {
+            # key [-g ]= value
             'add':    ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*=\s*(?P<data>.*)',   self.jot_add,    ['key', 'data', 'global']],
+            # key [-g ]|= value
             'also':   ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)', self.jot_also,   ['key', 'data', 'global']],
+            # key [-g]
             'get':    ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*',                   self.jot_get,    ['key', 'global']        ],
+            # key [-g ]@ target
             'tell':   ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)\s*', self.jot_get,    ['key', 'global', 'at']  ],
+            # ?key
             'search': ['\?(?P<key>[\w\s]+?)\s*',                                   self.jot_search, ['key']                  ],
-            'remove': ['-(?P<key>[\w\s]+?)(?P<global>\s*-g)?',                     self.jot_remove, ['key', 'global']        ]
+            # -key [-g]
+            'remove': ['-(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*',                  self.jot_remove, ['key', 'global']        ]
         }
         # compile feature regexps
         for feature in self.features:
