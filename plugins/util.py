@@ -94,6 +94,13 @@ class Plugin:
 		self.bot.quit()
 		exit()
 	
+	@command
+	def testt(self, mask, targ, arg):
+	    """jwijeiwje
+	        %%testt
+	    """
+	    self.bot.privmsg(targ, "beeoop")
+	
 	def reset_timers(self):
 		for timer in self.timers:
 			self.timers[timer].cancel()
@@ -114,7 +121,7 @@ class Plugin:
 		self.timers[call_id].start()
 
 
-class altered_mask_policy:
+class mode_based_policy:
 	"""Allow only valid masks. Able to take care or permissions. Will not allow commands during first seven seconds after a channel join."""
 
 	def __init__(self, bot):

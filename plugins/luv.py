@@ -7,15 +7,17 @@ class Plugin:
 	def __init__(self, bot):
 		self.bot = bot
 		
-		self.opts = ('you are welcome',
-					'no problem',
-					'do not mention it',
-					'it is my pleasure',
-					'sure thing',
-					'of course',
-					'happy to help',
-					'beep boop')
-		
+		self.opts = ('you are welcome!',
+					'no problem!',
+					'do not mention it!',
+					'it is my pleasure!',
+					'sure thing!',
+					'of course!',
+					'every time!',
+					'how could I not?'
+					'happy to help!',
+					'beep boop.')
+							
 		print("<3 <3 <3 luv ~ LOADE")
 	
 	@classmethod
