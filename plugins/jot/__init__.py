@@ -12,23 +12,29 @@ class Plugin:
         
         self.features = {
             # key [-g ]= value
-            'add':    ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*=\s*(?P<data>.*)',   self.jot_add,    ['key', 'data', 'global']],
+            'add':    ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*=\s*(?P<data>.*)',                      self.jot_add,    ['key', 'data', 'global']],
+            
             # key [-g ]|= value
-            'also':   ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)', self.jot_also,   ['key', 'data', 'global']],
-            # key [-g]
-            'get':    ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*',                   self.jot_get,    ['key', 'global']        ],
-            # key [-g ]@ target
-            'tell':   ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)\s*', self.jot_get,    ['key', 'global', 'at']  ],
+            'also':   ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)',                    self.jot_also,   ['key', 'data', 'global']],
+            
+            # key[.#] [-g]
+            'get':    ['(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*',                   self.jot_get,    ['key', 'rpi', 'global']],
+            
+            # key[.#] [-g ]@ target
+            'tell':   ['(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)\s*', self.jot_get,    ['key', 'rpi', 'global', 'at']],
+            
             # ?key
-            'search': ['\?(?P<key>[\w\s]+?)\s*',                                   self.jot_search, ['key']                  ],
-            # -key [-g]
-            'remove': ['-(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*',                  self.jot_remove, ['key', 'global']        ]
+            'search': ['\?(?P<key>[\w\s]+?)\s*',                                                      self.jot_search, ['key']],
+            
+            # -key[.#] [-g]
+            'remove': ['-(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*',                  self.jot_remove, ['key', 'rpi', 'global']]
         }
         # compile feature regexps
         for feature in self.features:
             self.features[feature][0] = re.compile('^'+self.controlchar+self.features[feature][0]+'$')
         
         self.jotfile_upgrade()
+        
         self.jot_load()
         print("JOT ~ LOADED")
     
@@ -62,16 +68,25 @@ class Plugin:
         else:
             self.jot_add(nick, target, key, data, globl)
             
-    def jot_get(self, nick, target, key, globl=None, at=None):
+    def jot_get(self, nick, target, key, response_index=None, globl=None, at=None):
+        response_index = -1 if response_index is None else int(response_index)
         if self.jot_exists(key, target) and globl is None:
             jot = self.jot_read(key, target)
             nick = at if at is not None else nick
-            self.bot.privmsg(target, nick + ": " + choice(jot['value']))
+            if response_index > -1:
+                if response_index < len(jot['value']):
+                    self.bot.privmsg(target, nick + ": " + jot['value'][response_index])
+            else:
+                self.bot.privmsg(target, nick + ": " + choice(jot['value']))
             return
         if self.jot_exists(key, ''):
             jot = self.jot_read(key, '')
             nick = at if at is not None else nick
-            self.bot.privmsg(target, nick + ": " + choice(jot['value']))
+            if response_index > -1:
+                if response_index < len(jot['value']):
+                    self.bot.privmsg(target, nick + ": " + jot['value'][response_index])
+            else:
+                self.bot.privmsg(target, nick + ": " + choice(jot['value']))
             
     def jot_search(self, nick, target, key):
         result = "Results "
@@ -86,14 +101,22 @@ class Plugin:
                 result = result + " " + self.controlchar + K + " "
         self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
     
-    def jot_remove(self, nick, target, key, globl=None):
+    def jot_remove(self, nick, target, key, rpi=None, globl=None):
         if nick in list(self.bot.channels[target].modes['@']):
+            rpi = -1 if rpi is None else int(rpi)
             if globl is not None:
                 target = ''
             key = key.lower()
             if target in self.jots:
                 if key in self.jots[target]:
-                    del self.jots[target][key]
+                    if rpi > -1:
+                        if len(self.jots[target][key]['value']) > 1:
+                            if rpi < len(self.jots[target][key]['value']):
+                                self.jots[target][key]['value'].pop(rpi)
+                        else:
+                            del self.jots[target][key]
+                    else:
+                        del self.jots[target][key]
                     self.bot.privmsg(nick, 'Ok.')
                     
     # --- Reload & Accessors
