@@ -11,32 +11,49 @@ class Plugin:
         self.controlchar = self.bot.config.get('jot', {}).get('controlchar','>')
         
         self.features = {
-            # key [-g ]= value
-            'add':    ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*=\s*(?P<data>.*)',                      self.jot_add,    ['key', 'data', 'global']],
+            'add': [ # key [-g ]= value
+                '(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*=\s*(?P<data>.*)',
+                self.jot_add, ['key', 'data', 'global']],
             
-            # key [-g ]|= value
-            'also':   ['(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)',                    self.jot_also,   ['key', 'data', 'global']],
+            'also': [ # key [-g ]|= value
+                '(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)',
+                self.jot_also, ['key', 'data', 'global']],
             
-            # key[.#] -g ~=
+            'suppliment': [ # key[.#] [-g ]+= data
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*\+=\s*(?P<data>.*)',
+                self.jot_suppliment, ['key', 'data', 'rpi', 'global']],
             
-            # key[.#] [-g]
-            'get':    ['(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*',                   self.jot_get,    ['key', 'rpi', 'global']],
+            'subtract': [ # key[.#] [-g ]-= needle
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*\-=\s*(?P<data>.*)',
+                self.jot_subtract, ['key', 'data', 'rpi', 'global']],
             
-            # key[.#] [-g ]@ target
-            'tell':   ['(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)\s*', self.jot_get,    ['key', 'rpi', 'global', 'at']],
+            'substitute':  [ # key[.#] [-g] ~needle=data
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*\~(?P<needle>.*)(?<!\\\\)=\s*(?P<data>.*)',
+                self.jot_substitute, ['key', 'needle', 'data', 'rpi', 'global']],
             
-            # ?key
-            'search': ['\?(?P<key>[\w\s]+?)\s*',                                                      self.jot_search, ['key']],
+            'get': [ # key[.#] [-g]
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?',
+                self.jot_get, ['key', 'rpi', 'global']],
             
-            # -key[.#] [-g]
-            'remove': ['-(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*',                  self.jot_remove, ['key', 'rpi', 'global']],
+            'tell': [ # key[.#] [-g ]@ target
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)',
+                self.jot_get, ['key', 'rpi', 'global', 'at']],
             
-            # double command character save + nick is opped in channel
-            'save':   [self.controlchar+'save\s*',                                                    self.jot_force_save,   []],
+            'search': [ # ?key
+                '\?(?P<key>[\w\s]+?)',
+                self.jot_search, ['key']],
+            
+            'remove': [ # -key[.#] [-g]
+                '-(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?',
+                self.jot_remove, ['key', 'rpi', 'global']],
+            
+            'save': [ # double command character save + nick is opped in channel
+                self.controlchar+'save', self.jot_force_save, []],
         }
+        
         # compile feature regexps
         for feature in self.features:
-            self.features[feature][0] = re.compile('^'+self.controlchar+self.features[feature][0]+'$')
+            self.features[feature][0] = re.compile('^'+self.controlchar+self.features[feature][0]+'\s*$')
         
         self.jotfile_upgrade()
         
@@ -73,25 +90,47 @@ class Plugin:
         else:
             self.jot_add(nick, target, key, data, globl)
             
+    def jot_suppliment(self, nick, target, key, data, rpi=None, globl=None):
+        self.jot_substitute(nick, target, key, None, data, rpi, globl)
+        
+    def jot_subtract(self, nick, target, key, data, rpi=None, globl=None):
+        self.jot_substitute(nick, target, key, data, '', rpi, globl)
+        
+    def jot_substitute(self, nick, target, key, needle, data, rpi=None, globl=None):
+        rpi = int(rpi) if rpi else -1
+        if globl is not None and nick in list(self.bot.channels[target].modes['@']):
+            target = ''
+        jot = self.jot_read(key, target)
+        if jot:
+            if rpi > -1:
+                if rpi < len(jot['value']):
+                    if needle:
+                        jot['value'][rpi] = jot['value'][rpi].replace(needle, data)
+                    else:
+                        jot['value'][rpi] += data
+                    self.bot.privmsg(nick, 'Ok.')
+            else:
+                if len(jot['value']) > 1:
+                    self.bot.privmsg(nick, '"'+key+'" has more than one respone, please indicate which you which you modify with decimal notation. (key.0+)')
+                else:
+                    if needle:
+                        jot['value'][0] = jot['value'][0].replace(needle, data)
+                    else:
+                        jot['value'][0] += data
+                    self.bot.privmsg(nick, 'Ok.')
+            self.jot_write(key, jot, target)
+    
     def jot_get(self, nick, target, key, response_index=None, globl=None, at=None):
         response_index = -1 if response_index is None else int(response_index)
-        if self.jot_exists(key, target) and globl is None:
-            jot = self.jot_read(key, target)
-            nick = at if at is not None else nick
+        nick = at if at is not None else nick
+        jot = self.jot_read(key) if (globl or not self.jot_exists(key, target)) else self.jot_read(key, target)
+        if jot:
             if response_index > -1:
                 if response_index < len(jot['value']):
                     self.bot.privmsg(target, nick + ": " + jot['value'][response_index])
             else:
                 self.bot.privmsg(target, nick + ": " + choice(jot['value']))
             return
-        if self.jot_exists(key, ''):
-            jot = self.jot_read(key, '')
-            nick = at if at is not None else nick
-            if response_index > -1:
-                if response_index < len(jot['value']):
-                    self.bot.privmsg(target, nick + ": " + jot['value'][response_index])
-            else:
-                self.bot.privmsg(target, nick + ": " + choice(jot['value']))
             
     def jot_search(self, nick, target, key):
         result = "Results "
@@ -103,26 +142,26 @@ class Plugin:
                     count+=1
         for k in self.jots['']:
             if key.lower() in k:
-                result = result + " " + self.controlchar + K + " "
+                result = result + " " + self.controlchar + k + " "
+                count+=1
         self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
     
     def jot_remove(self, nick, target, key, rpi=None, globl=None):
         if nick in list(self.bot.channels[target].modes['@']):
-            rpi = -1 if rpi is None else int(rpi)
-            if globl is not None:
-                target = ''
+            rpi = int(rpi) if rpi else -1
+            target = '' if globl else target
             key = key.lower()
-            if target in self.jots:
-                if key in self.jots[target]:
-                    if rpi > -1:
-                        if len(self.jots[target][key]['value']) > 1:
-                            if rpi < len(self.jots[target][key]['value']):
-                                self.jots[target][key]['value'].pop(rpi)
-                        else:
-                            del self.jots[target][key]
+            
+            if self.jot_exists(key, target):
+                if rpi > -1:
+                    if len(self.jots[target][key]['value']) > 1:
+                        if rpi < len(self.jots[target][key]['value']):
+                            self.jots[target][key]['value'].pop(rpi)
                     else:
                         del self.jots[target][key]
-                    self.bot.privmsg(nick, 'Ok.')
+                else:
+                    del self.jots[target][key]
+                self.bot.privmsg(nick, 'Ok.')
                     
     # --- Reload & Accessors
                     
@@ -143,6 +182,7 @@ class Plugin:
             return
         self.jot_save()
         self.bot.privmsg(nick, 'Ok.')
+
     @cron('*/5 * * * *')
     def jot_save(self):
         with shelve.open(self.jotfile) as channels:
@@ -150,7 +190,7 @@ class Plugin:
                 channels[channel] = self.jots[channel]
         print ("JOTFILE SAVED")
     
-    def jot_read(self, key, channel):
+    def jot_read(self, key, channel=''):
         key = key.lower()
         if channel in self.jots:
             if key in self.jots[channel]:
@@ -164,7 +204,7 @@ class Plugin:
         self.jots[channel][key.lower()] = value
         return result
     
-    def jot_exists(self, key, channel):
+    def jot_exists(self, key, channel=''):
         return (channel in self.jots) and (key.lower() in self.jots[channel])
         
     # ---  Core    
