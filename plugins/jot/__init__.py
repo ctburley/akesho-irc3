@@ -1,4 +1,4 @@
-import irc3, shelve, re
+import irc3, shelve, re, os.path
 from irc3.plugins.cron import cron
 from random import choice
 
@@ -6,6 +6,7 @@ from random import choice
 class Plugin:
 
     def __init__(self, bot):
+        self.training = False
         self.bot = bot
         self.jotfile = self.bot.config.get('jot', {}).get('jotfile','.jots')
         self.controlchar = self.bot.config.get('jot', {}).get('controlchar','>')
@@ -58,16 +59,29 @@ class Plugin:
         self.jotfile_upgrade()
         
         self.jot_load()
+        
+        if os.path.isfile(self.jotfile+'.tr'):
+            self.training = True
+            self.jot_train()
+            self.training = False
         print("JOT ~ LOADED")
-    
-    # ** Upgrade jotfile if needed
-    def jotfile_upgrade(self):
-        with shelve.open(self.jotfile) as channels:
-            if 'g#l#o#b#a#l' in channels:
-                beep = channels['g#l#o#b#a#l']
-                del channels['g#l#o#b#a#l']
-                channels[''] = beep
-            
+       
+    def jot_train(self):
+        tr = open(self.jotfile+".tr",'r')
+        lines = tr.readlines()
+        tr.close()
+        # \t(channel)
+        # trigger lines follow
+        channel = ''
+        nick = self.bot.nick
+        newchan = re.compile('^>(?P<channel>\S+)$')
+        for line in lines:
+            change = newchan.match(line)
+            if change:
+                print("NEW CHANNEL")
+                channel = change.group('channel')
+            else:
+                self.jot_core(nick, channel, self.controlchar+line)
     # --- Features
     
     def jot_add(self, nick, target, key, data, globl=None):
@@ -75,9 +89,11 @@ class Plugin:
             target = ''
         if not self.jot_exists(key, target):
             self.jot_write(key, {'key':key, 'from':nick, 'value':[data]}, target)
-            self.bot.privmsg(nick, 'Ok.')
+            if not self.training:
+                self.bot.privmsg(nick, 'Ok.')
         else:
-            self.bot.privmsg(nick, "The key '"+key+"' already exists.")
+            if not self.training:
+                self.bot.privmsg(nick, "'"+key+"' already exists.")
     
     def jot_also(self, nick, target, key, data, globl=None):
         if globl is not None and nick in list(self.bot.channels[target].modes['@']):
@@ -86,7 +102,8 @@ class Plugin:
             result = self.jot_read(key, target)
             result['value'].append(data)
             self.jot_write(key, result, target)
-            self.bot.privmsg(nick, 'Ok.')
+            if not self.training:
+                self.bot.privmsg(nick, 'Ok.')
         else:
             self.jot_add(nick, target, key, data, globl)
             
@@ -97,6 +114,8 @@ class Plugin:
         self.jot_substitute(nick, target, key, data, '', rpi, globl)
         
     def jot_substitute(self, nick, target, key, needle, data, rpi=None, globl=None):
+        if self.training:
+            return
         rpi = int(rpi) if rpi else -1
         if globl is not None and nick in list(self.bot.channels[target].modes['@']):
             target = ''
@@ -108,7 +127,8 @@ class Plugin:
                         jot['value'][rpi] = jot['value'][rpi].replace(needle, data)
                     else:
                         jot['value'][rpi] += data
-                    self.bot.privmsg(nick, 'Ok.')
+                    if not self.training:
+                        self.bot.privmsg(nick, 'Ok.')
             else:
                 if len(jot['value']) > 1:
                     self.bot.privmsg(nick, '"'+key+'" has more than one respone, please indicate which you which you modify with decimal notation. (key.0+)')
@@ -117,10 +137,13 @@ class Plugin:
                         jot['value'][0] = jot['value'][0].replace(needle, data)
                     else:
                         jot['value'][0] += data
-                    self.bot.privmsg(nick, 'Ok.')
+                    if not self.training:
+                        self.bot.privmsg(nick, 'Ok.')
             self.jot_write(key, jot, target)
     
     def jot_get(self, nick, target, key, response_index=None, globl=None, at=None):
+        if self.training:
+            return
         response_index = -1 if response_index is None else int(response_index)
         nick = at if at is not None else nick
         jot = self.jot_read(key) if (globl or not self.jot_exists(key, target)) else self.jot_read(key, target)
@@ -133,6 +156,8 @@ class Plugin:
             return
             
     def jot_search(self, nick, target, key):
+        if self.training:
+            return
         result = "Results "
         count = 0
         if target in self.jots:
@@ -147,6 +172,8 @@ class Plugin:
         self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
     
     def jot_remove(self, nick, target, key, rpi=None, globl=None):
+        if self.training:
+            return
         if nick in list(self.bot.channels[target].modes['@']):
             rpi = int(rpi) if rpi else -1
             target = '' if globl else target
@@ -188,7 +215,6 @@ class Plugin:
         with shelve.open(self.jotfile) as channels:
             for channel in self.jots:
                 channels[channel] = self.jots[channel]
-        print ("JOTFILE SAVED")
     
     def jot_read(self, key, channel=''):
         key = key.lower()
@@ -207,7 +233,15 @@ class Plugin:
     def jot_exists(self, key, channel=''):
         return (channel in self.jots) and (key.lower() in self.jots[channel])
         
-    # ---  Core    
+    # ** Upgrade jotfile if needed
+    def jotfile_upgrade(self):
+        with shelve.open(self.jotfile) as channels:
+            if 'g#l#o#b#a#l' in channels:
+                beep = channels['g#l#o#b#a#l']
+                del channels['g#l#o#b#a#l']
+                channels[''] = beep
+    
+    # ---  Core
         
     @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<target>\S+) :(?P<data>.*)$')
     def jot_core(self, nick, target, data, **kw):
@@ -219,5 +253,12 @@ class Plugin:
                     arglist = []
                     for arg in args:
                         arglist.append(result.group(arg))
+                    self.log(name, nick, target, arglist)
                     func(nick, target, *arglist)
 
+    def log(self, feature, nick, target, args):
+        print('JOT:\t' +nick +'@' +target +' ' +feature +' ',args)
+    
+    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG #trees :\[(?P<highlvl>\d+)\]$')
+    def hack_for_treesbot(self, nick, highlvl, **kw):
+        self.jot_core(nick, '#trees', self.controlchar+highlvl)
