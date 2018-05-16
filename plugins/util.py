@@ -8,7 +8,7 @@ import fnmatch
 #import logging
 
 @irc3.plugin
-class Plugin:
+class Utility:
 
 	def __init__(self, bot):
 		self.bot = bot
