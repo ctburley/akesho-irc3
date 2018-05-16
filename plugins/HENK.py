@@ -17,9 +17,9 @@ class Plugin:
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
             
-        (self.friendos, self.bangers, self.huntEnabled, self.dekSpotted,
-         self.lineCount, self.dekDelay, self.dekTime, self.quietFail) \
-            = ({}, {}, {}, {}, {}, {}, {}, {})
+        self.friendos = self.bangers = self.huntEnabled = self.dekSpotted =\
+        self.lineCount = self.dekDelay = self.dekTime = self.quietFail = {}\
+        
         print("HENK ~ Deks Loaded Redy 2 Go")
 
     def load_deks(self, filename):
@@ -64,19 +64,19 @@ class Plugin:
         if len(text) < 1:
             text = "¯\_(ツ)_/¯"
         i, u, l = 1, text.upper(), text.lower()
-        text = u[0]
+        text = choice(u[0],l[0])
         for i in range(1, len(u)):
             text += u[i] if ((randint(1,56)%2) == 0) else l[i]
         print('HENK~~~ ' + target + ":" + text)
         self.bot.privmsg(target, text, immediate)
 
     def get_record(self, target, nick):
-        with shelve.open('deks/'+target) as records:
+        with shelve.open(self.directory+target) as records:
             record = {'f': 0, 'b': 0} if (nick not in records) else records[nick]
         return record
     
     def setRecord(self, target, nick, record):
-        with shelve.open('deks/'+target) as records:
+        with shelve.open(self.directory+target) as records:
             records[nick] = record
     
     @command
@@ -110,14 +110,14 @@ class Plugin:
         if args['on']:
             self.huntEnabled[target] = True
             self.dek_send(target, "ok hot stuff, bring it on!")
-            with shelve.open('deks/'+target+'-data') as data:
+            with shelve.open(self.directory+target+'-data') as data:
                 data['hunt'] = self.huntEnabled[target]
             return
         else:
             if args['off']:
                 self.huntEnabled[target] = False
                 self.dek_send(target, "i see how it is, pansy!")
-                with shelve.open('deks/'+target+'-data') as data:
+                with shelve.open(self.directory+target+'-data') as data:
                     data['hunt'] = self.huntEnabled[target]
                 return
         
@@ -127,7 +127,7 @@ class Plugin:
                 self.dek_send(target, "i will now be less verbose. repeat to toggle.")
             else:
                 self.dek_send(target, "i will not be less verbose. repeat to toggle.")
-            with shelve.open('deks/'+target+'-data') as data:
+            with shelve.open(self.directory+target+'-data') as data:
                 data['quiet'] = self.quietFail[target]
             return
         
@@ -151,7 +151,7 @@ class Plugin:
                     self.dekSpotted[target] = True
                     self.dek_send(target, "there is a dek", False)
                     self.dekTime[target] = time.time()
-                    with shelve.open('deks/' + target + '-data') as data:
+                    with shelve.open(self.directory + target + '-data') as data:
                         data['dekTime'] = self.dekTime[target]
                     return
             
@@ -194,7 +194,7 @@ class Plugin:
                     for key in list(self.friendos[target].keys()):
                         if (self.friendos[target][key] == values[0]):
                             del self.friendos[target][key]
-                with shelve.open('deks/'+target+'-data') as data:
+                with shelve.open(self.directory+target+'-data') as data:
                     data['dekTime'] = -1
                     data['friendos'] = self.friendos[target]
                 self.dek_send(target, "henk henk henk! after " + str(round(tDiff, 3)) + " seconds; " + str(mask.nick) + ", " + str(record['f']) + " deks now owe you a life debt." + fasts)
@@ -242,7 +242,7 @@ class Plugin:
                     for key in list(self.bangers[target].keys()):
                         if (self.bangers[target][key] == values[0]):
                             del self.bangers[target][key]
-                with shelve.open('deks/'+target+'-data') as data:
+                with shelve.open(self.directory+target+'-data') as data:
                     data['dekTime'] = -1
                     data['bangers'] = self.bangers[target]
                 self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
@@ -287,7 +287,7 @@ class Plugin:
             return
 
         top = {}
-        with shelve.open('deks/'+target) as records:
+        with shelve.open(self.directory+target) as records:
             s_records = sorted(records, key=lambda x: records[x]['f'], reverse=True)
             idx = 0
             while idx < 5 and idx < len(s_records):
@@ -311,7 +311,7 @@ class Plugin:
             return
 
         top = {}
-        with shelve.open('deks/'+target) as records:
+        with shelve.open(self.directory+target) as records:
             s_records = sorted(records, key=lambda x: records[x]['b'], reverse=True)
             idx = 0
             while idx < 5 and idx < len(s_records):
@@ -341,7 +341,7 @@ class Plugin:
             pot_channel = ""
             for file in os.listdir(self.directory):
                 if not file.endswith('-data'):
-                    with shelve.open('deks/' + file) as records:
+                    with shelve.open(self.directory + file) as records:
                         for name in records.keys():
                             rec = records[name]
                             if 'name' not in rec:
@@ -356,7 +356,7 @@ class Plugin:
             s = '' if pot is None else "Longest time a dek has been free is " + str(round(pot['slow'])) + " seconds. " + \
                                        pot['name'] + " ended that in "+pot_channel+"."
         else:
-            with shelve.open('deks/'+target) as records:
+            with shelve.open(self.directory+target) as records:
                 for name in records.keys():
                     rec = records[name]
                     if 'name' not in rec:
