@@ -265,22 +265,18 @@ class Plugin:
         now = datetime.utcnow()
         if offsets:
             zones = []
-            names = []
             zone_text = ""
             for offset in offsets:
                 time = now + timedelta(seconds=offset)
                 for pid in self.store.offset[offset]:
                     zone = self.store.location[pid]['name']
-                    name = self.store.location[pid]['by']
                     if zone not in zones:
                         zones.append(zone)
                         zone_text += ' ' + zone + ('(PM)' if time.hour > 12 else '(AM)')
-                    if name not in names:
-                        names.append(name)
             delta = timedelta(minutes=(20-now.minute)-1,seconds=(60-now.second))
             if now-self.music_last > timedelta(minutes=50):
                 self.music_last = now
-            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, '##akesho', 'Happy 4:20 to'+zone_text+'! Hey, '+', '.join(names)+', hit it!'+(self.music_text if self.music_last==now else ''))
+            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, '##akesho', 'Happy 4:20 to'+zone_text+'! '+(self.music_text if self.music_last==now else ''))
         if now-self.store.last_update > timedelta(24):
             self.store.update()
 
