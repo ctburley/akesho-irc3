@@ -3,6 +3,7 @@ import shelve
 import time
 import os
 from random import randint
+from random import choice
 from irc3.plugins.command import command
 
 
@@ -64,7 +65,7 @@ class Plugin:
         if len(text) < 1:
             text = "¯\_(ツ)_/¯"
         i, u, l = 1, text.upper(), text.lower()
-        text = choice(u[0],l[0])
+        text = choice([u[0],l[0]])
         for i in range(1, len(u)):
             text += u[i] if ((randint(1,56)%2) == 0) else l[i]
         print('HENK~~~ ' + target + ":" + text)
@@ -96,7 +97,7 @@ class Plugin:
         print("DEK TEST: " + mask.nick)
         if not self.load_deks(target):
             return
-        self.lineCount[target] = 1000
+        self.lineCount[target] = 2000
         self.on_line(target, 'PRIVMSG', None, mask)
         
     @command(permission='admin')
