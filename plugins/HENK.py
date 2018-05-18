@@ -109,6 +109,7 @@ class Plugin:
             self.huntEnabled[target] = True
             self.dek_send(target, "ok hot stuff, bring it on!")
             with shelve.open(self.directory+target+'-data') as data:
+                print("SAVING STATE")
                 data['hunt'] = self.huntEnabled[target]
             return
         else:
@@ -271,8 +272,9 @@ class Plugin:
             s_records = sorted(records, key=lambda x: records[x]['f'], reverse=True)
             idx = 0
             while idx < 5 and idx < len(s_records):
-                top[s_records[idx]] = records[s_records[idx]]['f']
-                idx += 1
+                if records[s_records[idx]]['f'] > 0"
+                    top[s_records[idx]] = records[s_records[idx]]['f']
+                    idx += 1
         response = ":: best friendos :: "
         topnames = sorted(top, key=lambda x: top[x], reverse=True)
         for names in topnames:
@@ -295,8 +297,9 @@ class Plugin:
             s_records = sorted(records, key=lambda x: records[x]['b'], reverse=True)
             idx = 0
             while idx < 5 and idx < len(s_records):
-                top[s_records[idx]] = records[s_records[idx]]['b']
-                idx += 1
+                if records[s_records[idx]]['b'] > 0:
+                    top[s_records[idx]] = records[s_records[idx]]['b']
+                    idx += 1
         response = ":: dem bangerinos :: "
         topnames = sorted(top, key=lambda x: top[x], reverse=True)
         for names in topnames:
