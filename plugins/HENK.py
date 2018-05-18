@@ -272,7 +272,7 @@ class Plugin:
             s_records = sorted(records, key=lambda x: records[x]['f'], reverse=True)
             idx = 0
             while idx < 5 and idx < len(s_records):
-                if records[s_records[idx]]['f'] > 0"
+                if records[s_records[idx]]['f'] > 0:
                     top[s_records[idx]] = records[s_records[idx]]['f']
                     idx += 1
         response = ":: best friendos :: "
