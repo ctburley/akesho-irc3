@@ -33,7 +33,7 @@ class Plugin:
         self.dekDelay[filename] = 70
         
         with shelve.open(os.path.join(self.directory, filename+'-data')) as data:
-            self.huntEnabled[filename] = False if 'hunt' not in data else data['hunt']
+            self.huntEnabled[filename] = 'hunt' in data
             self.quietFail[filename] = False if 'quiet' not in data else data['quiet']
             self.dekTime[filename] = -1 if 'dekTime' not in data else data['dekTime']
             self.dekSpotted[filename] = (self.dekTime[filename] is not -1)
@@ -110,17 +110,15 @@ class Plugin:
             self.dek_send(target, "ok hot stuff, bring it on!")
             with shelve.open(os.path.join(self.directory, target+'-data')) as data:
                 print("SAVING STATE")
-                if 'hunt' in data:
-                    print(data['hunt'])
-                data['hunt'] = self.huntEnabled[target]
-                print(data['hunt'])
+                data['hunt'] = {}
             return
         else:
             if args['off']:
                 self.huntEnabled[target] = False
                 self.dek_send(target, "i see how it is, pansy!")
                 with shelve.open(os.path.join(self.directory, target+'-data')) as data:
-                    data['hunt'] = self.huntEnabled[target]
+                    if 'hunt' in data
+                        del data['hunt']
                 return
         
         if args['quieter']:
