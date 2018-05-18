@@ -259,6 +259,6 @@ class Plugin:
     def log(self, feature, nick, target, args):
         print('JOT:\t' +nick +'@' +target +' ' +feature +' ',args)
     
-    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG #trees :(\[|\{)(?P<highlvl>\d+)(]|})$')
+    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG #trees :(\[|\{)(?P<highlvl>\d+)(\]|})$')
     def hack_for_treesbot(self, nick, highlvl, **kw):
         self.jot_core(nick, '#trees', self.controlchar+highlvl)
