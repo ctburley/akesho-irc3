@@ -14,7 +14,7 @@ class Plugin:
 					'sure thing!',
 					'of course!',
 					'every time!',
-					'how could I not?'
+					'how could I not?',
 					'happy to help!',
 					'beep boop.')
 							
