@@ -227,6 +227,7 @@ class Plugin:
         self.music_text = " ♫ Don't forget to turn your music back on! ♬ "
         self.music_last = datetime.utcnow() - timedelta(hours=1)
         self.store = Store20(self.bot.config.get('smoke', {}).get('key',None),'./data/smoke')
+        self.announce_to = '#trees'
         
     @command
     def del420(self, nick, target, args):
@@ -276,7 +277,7 @@ class Plugin:
             delta = timedelta(minutes=(20-now.minute)-1,seconds=(60-now.second))
             if now-self.music_last > timedelta(minutes=50):
                 self.music_last = now
-            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, '##akesho', 'Happy 4:20 to'+zone_text+'! '+(self.music_text if self.music_last==now else ''))
+            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20 to'+zone_text+'! '+(self.music_text if self.music_last==now else ''))
         if now-self.store.last_update > timedelta(24):
             self.store.update()
 
