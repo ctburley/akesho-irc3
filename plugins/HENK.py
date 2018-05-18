@@ -117,7 +117,7 @@ class Plugin:
                 self.huntEnabled[target] = False
                 self.dek_send(target, "i see how it is, pansy!")
                 with shelve.open(os.path.join(self.directory, target+'-data')) as data:
-                    if 'hunt' in data
+                    if 'hunt' in data:
                         del data['hunt']
                 return
         
