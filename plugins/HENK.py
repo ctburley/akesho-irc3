@@ -18,8 +18,7 @@ class Plugin:
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
             
-        self.friendos = self.bangers = self.huntEnabled = self.dekSpotted =\
-        self.lineCount = self.dekDelay = self.dekTime = self.quietFail = {}\
+        self.huntEnabled = self.dekSpotted = self.lineCount = self.dekDelay = self.dekTime = self.quietFail = {}
         
         print("HENK ~ Deks Loaded Redy 2 Go")
 
@@ -34,8 +33,6 @@ class Plugin:
         self.dekDelay[filename] = 70
         
         with shelve.open(os.path.join(self.directory, filename+'-data')) as data:
-            self.friendos[filename] = {} if 'friendos' not in data else data['friendos']
-            self.bangers[filename] = {} if 'bangers' not in data else data['bangers']
             self.huntEnabled[filename] = False if 'hunt' not in data else data['hunt']
             self.quietFail[filename] = False if 'quiet' not in data else data['quiet']
             self.dekTime[filename] = -1 if 'dekTime' not in data else data['dekTime']
@@ -187,17 +184,8 @@ class Plugin:
                     record['slow'] = tDiff
                 
                 self.setRecord(target, mask.nick, record)
-                values = list(self.friendos[target].values())
-                values.sort()
-                if ((len(self.friendos[target]) < 5) or (values[0] < record['f'])):
-                    self.friendos[target][mask.nick] = record['f']
-                if (len(self.friendos[target]) > 5):
-                    for key in list(self.friendos[target].keys()):
-                        if (self.friendos[target][key] == values[0]):
-                            del self.friendos[target][key]
                 with shelve.open(self.directory+target+'-data') as data:
                     data['dekTime'] = -1
-                    data['friendos'] = self.friendos[target]
                 self.dek_send(target, "henk henk henk! after " + str(round(tDiff, 3)) + " seconds; " + str(mask.nick) + ", " + str(record['f']) + " deks now owe you a life debt." + fasts)
                 self.dekSpotted[target] = False
             else:
@@ -235,17 +223,8 @@ class Plugin:
                     record['slow'] = tDiff
                 
                 self.setRecord(target, mask.nick, record)
-                values = list(self.bangers[target].values())
-                values.sort()
-                if ((len(self.bangers[target]) < 5) or (values[0] < record['b'])):
-                    self.bangers[target][mask.nick] = record['b']
-                if (len(self.bangers[target]) > 5):
-                    for key in list(self.bangers[target].keys()):
-                        if (self.bangers[target][key] == values[0]):
-                            del self.bangers[target][key]
                 with shelve.open(self.directory+target+'-data') as data:
                     data['dekTime'] = -1
-                    data['bangers'] = self.bangers[target]
                 self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
                 self.dekSpotted[target] = False
             else:
