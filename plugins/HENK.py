@@ -110,7 +110,6 @@ class Plugin:
             self.dek_send(target, "ok hot stuff, bring it on!")
             with shelve.open(os.path.join(self.directory, target+'-data')) as data:
                 print("SAVING STATE")
-                print(data['hunt'])
                 data['hunt'] = self.huntEnabled[target]
                 print(data['hunt'])
             return
