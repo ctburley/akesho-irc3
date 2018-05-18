@@ -108,7 +108,7 @@ class Plugin:
         if args['on']:
             self.huntEnabled[target] = True
             self.dek_send(target, "ok hot stuff, bring it on!")
-            with shelve.open(os.path.join(self.directory, filename+'-data')) as data:
+            with shelve.open(os.path.join(self.directory, target+'-data')) as data:
                 print("SAVING STATE")
                 print(data['hunt'])
                 data['hunt'] = self.huntEnabled[target]
@@ -118,7 +118,7 @@ class Plugin:
             if args['off']:
                 self.huntEnabled[target] = False
                 self.dek_send(target, "i see how it is, pansy!")
-                with shelve.open(os.path.join(self.directory, filename+'-data')) as data:
+                with shelve.open(os.path.join(self.directory, target+'-data')) as data:
                     data['hunt'] = self.huntEnabled[target]
                 return
         
