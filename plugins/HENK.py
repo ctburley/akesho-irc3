@@ -27,6 +27,12 @@ class Plugin:
             return False;
         if filename in self.huntEnabled:
             return True
+        
+        
+        if not os.path.isfile(os.path.join(self.directory, filename+'-data')):
+            with shelve.open(os.path.join(self.directory, filename+'-data')) as data:
+                data['quiet'] = False
+                data['dekTime'] = -1
 
         print("Loading Deks for " + filename)  # filename is the channel name
         self.lineCount[filename] = 0
