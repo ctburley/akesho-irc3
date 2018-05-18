@@ -45,8 +45,8 @@ class Plugin:
             
             %%mergedeks <from> <to> [yes]
         """
-        d_from = args['<from>']
-        d_to = args['<to>']
+        d_from = args['<from>'].lower()
+        d_to = args['<to>'].lower()
         if args['yes']:
             print("DEKS MERGING FROM: " + d_from + "  TO: " + d_to + "  BY: " + mask.nick)
             with shelve.open(os.path.join(self.directory, target)) as reks:
@@ -70,12 +70,12 @@ class Plugin:
 
     def get_record(self, target, nick):
         with shelve.open(self.directory+target) as records:
-            record = {'f': 0, 'b': 0} if (nick not in records) else records[nick]
+            record = {'f': 0, 'b': 0} if (nick.lower() not in records) else records[nick.lower()]
         return record
     
     def setRecord(self, target, nick, record):
         with shelve.open(self.directory+target) as records:
-            records[nick] = record
+            records[nick.lower()] = record
     
     @command
     def dekhelp(self, mask, target, args):
