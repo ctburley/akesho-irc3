@@ -252,14 +252,14 @@ class Plugin:
             %%rename420 <pid> <newname>...
         """
         if self.store.rename(args['<pid>'], ' '.join(args['<newname>'])):
-            self.privmsg(mask.nick, 'Ok.')
+            self.bot.privmsg(mask.nick, 'Ok.')
             
     @command
     def list420(self, mask, target, args):
         """PM you a list of active time zones, the locations respresented under them, and who added them.
-            %%list420
+            %%list420 [<pid>]
         """
-        for line in self.store.list():
+        for line in self.store.list(args['<pid>']):
             self.bot.privmsg(mask.nick, line, True)
         
     @cron('*/5 * * * *')
@@ -328,11 +328,16 @@ class Store20:
                     offsets.append(offset)
         return offsets if len(offsets) else None
 
-    def list(self):
+    def list(self, pid=None):
         lines = []
         # [UTC +12.5]
         line = "[UTC {:<+5.1f}] {:30} {:30} added by {:20} {}"
         lines.append("[UTC {}] {:30} {:30} added by {:20} {}".format('Offset','Time Zone','Location','Nick','Delete ID'))
+        if pid:
+            if pid in self.location:
+                loc = self.location[pid]
+                lines.append(line.format(offset/(60*60), loc['timezone']['timeZoneId'], "'{}'".format(loc['name'] if 'altname' not in loc else loc['altname']), loc['by'], pid))
+            return lines
         for offset in sorted(self.offset.keys()):
             for pid in self.offset[offset]:
                 loc = self.location[pid]
