@@ -272,7 +272,7 @@ class Plugin:
             for offset in offsets:
                 time = now + timedelta(seconds=offset)
                 for pid in self.store.offset[offset]:
-                    zone = self.store.location[pid]['name'] if 'altname' not in self.store.location[pid] else self.store locations[pid]['altname']
+                    zone = self.store.location[pid]['name'] if 'altname' not in self.store.location[pid] else self.store.location[pid]['altname']
                     if zone not in zones:
                         zones.append(zone)
                         zone_text += ' ' + zone + ('(PM)' if time.hour > 12 else '(AM)')
