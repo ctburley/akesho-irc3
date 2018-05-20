@@ -229,7 +229,7 @@ class Plugin:
         self.store = Store20(self.bot.config.get('smoke', {}).get('key',None),'./data/smoke')
         self.announce_to = '#trees'
         
-    @command
+    @command(permission='admin')
     def del420(self, nick, target, args):
         """Remove a location from the 420 announcements
             %%del420 <location>
@@ -237,7 +237,7 @@ class Plugin:
         if self.store.remove(args['<location>']):
             self.bot.privmsg(nick.nick, 'Ok.')
     
-    @command
+    @command(permission='admin')
     def add420(self, mask, target, args):
         """Add a location to the 420 announcements
             %%add420 <location>...
@@ -246,14 +246,13 @@ class Plugin:
         if self.store.add(where, mask.nick):
             self.bot.privmsg(mask.nick, 'Ok.')
             
-    @command
+    @command(permission='admin')
     def rename420(self, mask, target, args):
         """Rename a 420 location
             %%rename420 <pid> <newname>...
         """
-        pid = args['<pid>']
-        newname = args['<newname>']
-        print(pid, newname)
+        if self.store.rename(args['<pid>'], ' '.join(args['<newname>']):
+            self.privmsg(mask.nick, 'Ok.')
             
     @command
     def list420(self, mask, target, args):
@@ -262,12 +261,6 @@ class Plugin:
         """
         for line in self.store.list():
             self.bot.privmsg(mask.nick, line, True)
-        
-    @command
-    def test420(self, mask, target, args):
-        """test
-            %%test420"""
-        self.check420()
         
     @cron('*/5 * * * *')
     def check420(self):
@@ -279,7 +272,7 @@ class Plugin:
             for offset in offsets:
                 time = now + timedelta(seconds=offset)
                 for pid in self.store.offset[offset]:
-                    zone = self.store.location[pid]['name']
+                    zone = self.store.location[pid]['name'] if 'altname' not in self.store.location[pid] else self.store locations[pid]['altname']
                     if zone not in zones:
                         zones.append(zone)
                         zone_text += ' ' + zone + ('(PM)' if time.hour > 12 else '(AM)')
@@ -342,7 +335,8 @@ class Store20:
         lines.append("[UTC {}] {:30} {:30} added by {:20} {}".format('Offset','Time Zone','Location','Nick','Delete ID'))
         for offset in sorted(self.offset.keys()):
             for pid in self.offset[offset]:
-                lines.append(line.format(offset/(60*60), self.location[pid]['timezone']['timeZoneId'], "'{}'".format(self.location[pid]['name']), self.location[pid]['by'], pid))
+                loc = self.location[pid]
+                lines.append(line.format(offset/(60*60), loc['timezone']['timeZoneId'], "'{}'".format(loc['name'] if 'altname' not in loc else loc['altname']), loc['by'], pid))
         return lines
         
     def add(self, name, by):
@@ -359,6 +353,10 @@ class Store20:
             self.save()
             return True
         return False
+    
+    def rename(self, pid, newname):
+        if pid in self.location:
+            self.location[pid]['altname'] = newname
         
     def remove(self, place_id):
         if place_id in self.location:
