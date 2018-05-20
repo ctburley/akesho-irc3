@@ -247,6 +247,15 @@ class Plugin:
             self.bot.privmsg(mask.nick, 'Ok.')
             
     @command
+    def rename420(self, mask, target, args):
+        """Rename a 420 location
+            %%rename420 <pid> <newname>...
+        """
+        pid = args['<pid>']
+        newname = args['<newname>']
+        print(pid, newname)
+            
+    @command
     def list420(self, mask, target, args):
         """PM you a list of active time zones, the locations respresented under them, and who added them.
             %%list420
