@@ -336,8 +336,7 @@ class Store20:
         if pid:
             if pid in self.location:
                 loc = self.location[pid]
-                lines.append(line.format((loc['timezone']['rawOffset'] + loc['timezone']['dstOffset'])/(60*60), loc['timezone']['timeZoneId'], "'{}'".format(loc['name'] if 'altname' not in loc else loc['altname']), loc['by'], pid))
-            return lines
+                return [line.format((loc['timezone']['rawOffset'] + loc['timezone']['dstOffset'])/(60*60), loc['timezone']['timeZoneId'], "'{}'".format(loc['name'] if 'altname' not in loc else loc['altname']), loc['by'], pid)]
         for offset in sorted(self.offset.keys()):
             for pid in self.offset[offset]:
                 loc = self.location[pid]
