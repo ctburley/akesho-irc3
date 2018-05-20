@@ -251,7 +251,7 @@ class Plugin:
         """Rename a 420 location
             %%rename420 <pid> <newname>...
         """
-        if self.store.rename(args['<pid>'], ' '.join(args['<newname>']):
+        if self.store.rename(args['<pid>'], ' '.join(args['<newname>'])):
             self.privmsg(mask.nick, 'Ok.')
             
     @command
