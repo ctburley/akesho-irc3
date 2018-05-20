@@ -357,6 +357,9 @@ class Store20:
     def rename(self, pid, newname):
         if pid in self.location:
             self.location[pid]['altname'] = newname
+            self.save()
+            return True
+        return False
         
     def remove(self, place_id):
         if place_id in self.location:
