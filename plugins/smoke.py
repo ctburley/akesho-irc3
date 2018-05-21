@@ -263,21 +263,15 @@ class Plugin:
         for line in self.store.list(args['<pid>']):
             self.bot.privmsg(mask.nick, line, True)
     
-    @command
-    def test420(self, mask, target, args):
-        """PM
-            %%test420
-        """
-        self.my420()
-    
     @cron('15 4,16 * * *')
     def my420(self):
         self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
         self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
-        self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
-        self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "Oh yeah, that's me...")
+        if choice(['a','b','c','d']) == 'c':
+            self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
+            self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "Oh yeah, that's me...")
         self.bot.loop.call_later(40,self.getin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [], True)
-        self.bot.loop.call_later(5*60, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
+        self.bot.loop.call_later((5*60)+2, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
         
     @cron('*/5 * * * *')
     def check420(self):
