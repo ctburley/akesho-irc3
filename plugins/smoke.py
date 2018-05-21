@@ -5,7 +5,7 @@ import googlemaps
 from irc3.plugins.cron import cron
 from datetime import datetime
 from datetime import timedelta
-from random import randint
+from random import randint, choice
 from threading import Timer
 from irc3.plugins.command import command
 
@@ -185,7 +185,7 @@ class Plugin:
 
 
     @command
-    def getin(self, mask, channel, args):
+    def getin(self, mask, channel, args, nowait=False):
         """Start a round. 
             
             %%getin
@@ -200,7 +200,7 @@ class Plugin:
         
         # Initialize the round information
         self.smokers[channel] = [mask.nick]
-        self.wait[channel] = 0
+        self.wait[channel] = 0 if not nowait else 2
         
         # Inform the channel the round has begun
         self.sendMessage(channel, mask.nick + " is ready to burn one, who else is in?")
@@ -263,7 +263,7 @@ class Plugin:
             self.bot.privmsg(mask.nick, line, True)
     
     @command(permission='owner',show_in_help_menu=False)
-    def bump(self, m, c, a):
+    def bump420(self, m, c, a):
         """bump
             %%bump [<minute>]
         """
@@ -271,6 +271,13 @@ class Plugin:
             self.check420(int(a['<minute>']))
         else:
             self.check420()
+    
+    @cron('15 4 * * *')
+    def my420(self):
+        self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
+        self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
+        self.bot.loop.call_later(40,self.getin, IrcString('akesho!user@host'), self.announce_to, [], True)
+        self.bot.loop.call_later((4*60)+24, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
         
     @cron('*/5 * * * *')
     def check420(self, test=None):
@@ -285,10 +292,10 @@ class Plugin:
                     ap = 'AM' if time.hour < 12 else 'PM'
                     if zone not in zones[ap]:
                         zones[ap].append(zone)
-            zone_text = ';'.join([(" {}: {}".format(z, ', '.join(zones[z])) if len(zones[z]) > 0  else '') for z in zones])
+            zone_text = ''.join([(" {}: {}".format(z, ', '.join(zones[z])) if len(zones[z]) > 0  else '') for z in zones])
             delta = timedelta(minutes=(20-time.minute)-1,seconds=(60-time.second))
             (self.music_last, mt) = (now, self.music_text) if now-self.music_last > timedelta(minutes=50) else (self.music_last, '')
-            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20! '+zone_text+'! '+mt)
+            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20!'+zone_text+'! '+mt)
         if now-self.store.last_update > timedelta(24):
             self.store.update()
 
