@@ -270,7 +270,7 @@ class Plugin:
         self.check420(int(a['<minute>']))
         
     @cron('*/5 * * * *')
-    def check420(self test=None):
+    def check420(self, test=None):
         offsets = self.store.get_next() if not test else self.store.get_next(test)
         now = datetime.utcnow()
         if offsets:
