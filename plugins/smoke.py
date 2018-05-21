@@ -267,7 +267,10 @@ class Plugin:
         """bump
             %%bump [<minute>]
         """
-        self.check420(int(a['<minute>']))
+        if a['<minute>']:
+            self.check420(int(a['<minute>']))
+        else:
+            self.check420()
         
     @cron('*/5 * * * *')
     def check420(self, test=None):
@@ -280,7 +283,7 @@ class Plugin:
                 for pid in self.store.offset[offset]:
                     zone = self.store.location[pid]['name'] if 'altname' not in self.store.location[pid] else self.store.location[pid]['altname']
                     ap = 'AM' if time.hour < 12 else 'PM'
-                    if zone not in zones[ap]
+                    if zone not in zones[ap]:
                         zones[ap].append(zone)
             zone_text = ';'.join([(" {}: {}".format(z, ', '.join(zones[z])) if len(zones[z]) > 0  else '') for z in zones])
             delta = timedelta(minutes=(20-time.minute)-1,seconds=(60-time.second))
