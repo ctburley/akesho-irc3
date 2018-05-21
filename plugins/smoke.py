@@ -270,7 +270,7 @@ class Plugin:
         """
         self.my420()
     
-    @cron('18 4,16 * * *')
+    @cron('15 4,16 * * *')
     def my420(self):
         self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
         self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
