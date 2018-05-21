@@ -227,7 +227,7 @@ class Plugin:
         self.music_text = " ♫ Don't forget to turn your music back on! ♬ "
         self.music_last = datetime.utcnow() - timedelta(hours=1)
         self.store = Store20(self.bot.config.get('smoke', {}).get('key',None),'./data/smoke')
-        self.announce_to = '#trees'
+        self.announce_to = self.bot.config.get('smoke', {}).get('announce', '')
         
     @command(permission='admin')
     def del420(self, nick, target, args):
@@ -261,25 +261,31 @@ class Plugin:
         """
         for line in self.store.list(args['<pid>']):
             self.bot.privmsg(mask.nick, line, True)
+    
+    @command(permission='owner',show_in_help_menu=False)
+    def bump(self, m, c, a):
+        """bump
+            %%bump [<minute>]
+        """
+        self.check420(int(a['<minute>']))
         
     @cron('*/5 * * * *')
-    def check420(self):
-        offsets = self.store.get_next()
+    def check420(self test=None):
+        offsets = self.store.get_next() if not test else self.store.get_next(test)
         now = datetime.utcnow()
         if offsets:
-            zones = []
-            zone_text = ""
+            zones = {'AM':[],'PM':[]}
             for offset in offsets:
                 time = now + timedelta(seconds=offset)
                 for pid in self.store.offset[offset]:
                     zone = self.store.location[pid]['name'] if 'altname' not in self.store.location[pid] else self.store.location[pid]['altname']
-                    if zone not in zones:
-                        zones.append(zone)
-                        zone_text += ' ' + zone + ('(PM)' if time.hour > 12 else '(AM)')
-            delta = timedelta(minutes=(20-now.minute)-1,seconds=(60-now.second))
-            if now-self.music_last > timedelta(minutes=50):
-                self.music_last = now
-            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20 to'+zone_text+'! '+(self.music_text if self.music_last==now else ''))
+                    ap = 'AM' if time.hour < 12 else 'PM'
+                    if zone not in zones[ap]
+                        zones[ap].append(zone)
+            zone_text = ';'.join([(" {}: {}".format(z, ', '.join(zones[z])) if len(zones[z]) > 0  else '') for z in zones])
+            delta = timedelta(minutes=(20-time.minute)-1,seconds=(60-time.second))
+            (self.music_last, mt) = (now, self.music_text) if now-self.music_last > timedelta(minutes=50) else (self.music_last, '')
+            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20! '+zone_text+'! '+mt)
         if now-self.store.last_update > timedelta(24):
             self.store.update()
 
@@ -302,6 +308,7 @@ class Store20:
             self.last_update = tzos['since'] if 'since' in tzos else datetime.utcnow()
             self.offset = tzos['offsets'] if 'offsets' in tzos else {}
             self.location = tzos['locations'] if 'locations' in tzos else {}
+            
         print("Store20 Loaded.")
         if (datetime.utcnow() - self.last_update) > timedelta(24):
             self.update()
@@ -318,13 +325,13 @@ class Store20:
         print('Time Zone Offsets Updated')
         self.save()
         
-    def get_next(self):
+    def get_next(self, test=15):
         now = datetime.utcnow()
         offsets = []
         for offset in self.offset:
             time = now + timedelta(seconds=offset)
             if time.hour%12 == 4:
-                if 15 <= time.minute < 20:
+                if test <= time.minute < test+5:
                     offsets.append(offset)
         return offsets if len(offsets) else None
 
