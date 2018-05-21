@@ -262,16 +262,6 @@ class Plugin:
         for line in self.store.list(args['<pid>']):
             self.bot.privmsg(mask.nick, line, True)
     
-    @command(permission='owner',show_in_help_menu=False)
-    def bump420(self, m, c, a):
-        """bump
-            %%bump [<minute>]
-        """
-        if a['<minute>']:
-            self.check420(int(a['<minute>']))
-        else:
-            self.check420()
-    
     @cron('15 4 * * *')
     def my420(self):
         self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
@@ -280,8 +270,8 @@ class Plugin:
         self.bot.loop.call_later((4*60)+24, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
         
     @cron('*/5 * * * *')
-    def check420(self, test=None):
-        offsets = self.store.get_next() if not test else self.store.get_next(test)
+    def check420(self):
+        offsets = self.store.get_next()
         now = datetime.utcnow()
         if offsets:
             zones = {'AM':[],'PM':[]}
@@ -335,13 +325,13 @@ class Store20:
         print('Time Zone Offsets Updated')
         self.save()
         
-    def get_next(self, test=15):
+    def get_next(self):
         now = datetime.utcnow()
         offsets = []
         for offset in self.offset:
             time = now + timedelta(seconds=offset)
             if time.hour%12 == 4:
-                if test <= time.minute < test+5:
+                if 15 <= time.minute < 20:
                     offsets.append(offset)
         return offsets if len(offsets) else None
 
