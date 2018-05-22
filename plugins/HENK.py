@@ -51,6 +51,7 @@ class Plugin:
             
             %%mergedeks <from> <to> [yes]
         """
+        return
         d_from = args['<from>'].lower()
         d_to = args['<to>'].lower()
         if args['yes']:
