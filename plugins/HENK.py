@@ -26,6 +26,8 @@ class Henk:
         if not filename.startswith('#'):
             return False;
         if filename in self.huntEnabled:
+            print("Enabled: {}   Quieter: {}   Dek Loose: {}   When: {}".format(
+                self.huntEnabled[filename], self.quietFail[filename], self.dekSpotted[filename], self.dekTime[filename]))
             return True
         
         
@@ -47,6 +49,12 @@ class Henk:
             self.huntEnabled[filename], self.quietFail[filename], self.dekSpotted[filename], self.dekTime[filename]))
         return True
 
+    @command
+    def ht(s,m,t,a):
+        """a
+            %%ht
+        """
+        
     @command(permission='admin',show_in_help_menu=False)
     def mergedeks(self, mask, target, args):
         """MeRgE FroM One tO AnOtHer
