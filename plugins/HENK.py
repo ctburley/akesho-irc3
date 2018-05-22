@@ -43,7 +43,7 @@ class Henk:
             self.quietFail[filename] = False if 'quiet' not in data else data['quiet']
             self.dekTime[filename] = -1 if 'dekTime' not in data else data['dekTime']
             self.dekSpotted[filename] = (self.dekTime[filename] is not -1)
-        print("Enabled: {hunt}   Quieter: {quiet}   Dek Loose: {dek}   When: {dektime}".format(
+        print("Enabled: {}   Quieter: {}   Dek Loose: {}   When: {}".format(
             self.huntEnabled[filename], self.quietFail[filename], self.dekSpotted[filename], self.dekTime[filename]))
         return True
 
