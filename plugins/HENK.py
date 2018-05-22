@@ -18,7 +18,8 @@ class Henk:
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
             
-        self.huntEnabled = self.dekSpotted = self.lineCount = self.dekDelay = self.dekTime = self.quietFail = {}
+        ( self.huntEnabled, self.dekSpotted, self.lineCount,
+          self.dekDelay, self.dekTime, self.quietFail ) = [{} for _ in range(6)]
         
         print("HENK ~ Deks Loaded Redy 2 Go")
 
