@@ -8,7 +8,7 @@ from irc3.plugins.command import command
 
 
 @irc3.plugin
-class Plugin:
+class Henk:
 
     def __init__(self, bot):
         self.bot = bot
@@ -43,6 +43,8 @@ class Plugin:
             self.quietFail[filename] = False if 'quiet' not in data else data['quiet']
             self.dekTime[filename] = -1 if 'dekTime' not in data else data['dekTime']
             self.dekSpotted[filename] = (self.dekTime[filename] is not -1)
+        print("Enabled: {hunt}   Quieter: {quiet}   Dek Loose: {dek}   When: {dektime}".format(
+            self.huntEnabled[filename], self.quietFail[filename], self.dekSpotted[filename], self.dekTime[filename]))
         return True
 
     @command(permission='admin',show_in_help_menu=False)
