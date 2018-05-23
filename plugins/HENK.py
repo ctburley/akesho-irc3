@@ -350,6 +350,3 @@ class Henk:
 
         self.dek_send(target, f + s)
         
-class Hunt:
-    def __init__(self):
-        
