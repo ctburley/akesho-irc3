@@ -6,7 +6,6 @@ from random import randint
 from random import choice
 from irc3.plugins.command import command
 
-
 @irc3.plugin
 class Henk:
 
@@ -29,12 +28,6 @@ class Henk:
         if filename in self.huntEnabled:
             return True
         
-        
-        if not os.path.isfile(os.path.join(self.directory, filename+'-data')):
-            with shelve.open(os.path.join(self.directory, filename+'-data')) as data:
-                data['quiet'] = False
-                data['dekTime'] = -1
-
         print("Loading Deks for " + filename)  # filename is the channel name
         self.lineCount[filename] = 0
         self.dekDelay[filename] = 70
@@ -46,12 +39,6 @@ class Henk:
             self.dekSpotted[filename] = (self.dekTime[filename] is not -1)
         return True
 
-    @command
-    def ht(s,m,t,a):
-        """a
-            %%ht
-        """
-        
     @command(permission='admin',show_in_help_menu=False)
     def mergedeks(self, mask, target, args):
         """MeRgE FroM One tO AnOtHer
@@ -75,12 +62,8 @@ class Henk:
     def dek_send(self, target, text, immediate=True):
         if len(text) < 1:
             text = "¯\_(ツ)_/¯"
-        i, u, l = 1, text.upper(), text.lower()
-        text = choice([u[0],l[0]])
-        for i in range(1, len(u)):
-            text += u[i] if ((randint(1,56)%2) == 0) else l[i]
-        print('HENK~~~ ' + target + ":" + text)
-        self.bot.privmsg(target, text, immediate)
+        u, l = text.upper(), text.lower()
+        self.bot.privmsg(target, ''.join([choice([u[i],l[i]]) for i in range(len(u))]), immediate)
 
     def get_record(self, target, nick):
         with shelve.open(self.directory+target) as records:
@@ -366,3 +349,7 @@ class Henk:
             s = '' if pot is None else "Longest time a dek has been free is "+str(round(pot['slow']))+" seconds. " + pot['name'] + " ended that."
 
         self.dek_send(target, f + s)
+        
+class Hunt:
+    def __init__(self):
+        
