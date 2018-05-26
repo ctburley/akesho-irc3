@@ -106,7 +106,7 @@ class Plugin:
         self.sendMessage(channel, "Fire in the bowl!")
     
         self.wait[channel] = 3
-        self.bot.goTime(120, self.reset, channel)
+        self.bot.loop.call_later(120, self.reset, channel)
 
     @command
     def whosin(self, mask, channel, args):
@@ -162,14 +162,14 @@ class Plugin:
             
             if self.wait[channel] == 1:
                 self.wait[channel] = 2
-                self.bot.goTime(30, self.warn20Second, channel)
+                self.bot.loop.call_later(30, self.warn20Second, channel)
                 return
     
             # Warn the channel
             self.sendMessage(channel, "Ten seconds, grab your lighter.")
         
             self.wait[channel] = 2
-            self.bot.goTime(7, self.countdown, channel)
+            self.bot.loop.call_later(7, self.countdown, channel)
 
     def warn20Second(self, channel):
         if self.smoking(channel):
@@ -178,11 +178,11 @@ class Plugin:
             
             if self.wait[channel] == 1:
                 self.wait[channel] = 2
-                self.bot.goTime(30, self.warn20Second, channel)
+                self.bot.loop.call_later(30, self.warn20Second, channel)
                 return
             self.sendMessage(channel, "Twenty seconds, is that bowl packed yet?");
     
-            self.bot.goTime(10, self.warn10Second, channel)
+            self.bot.loop.call_later(10, self.warn10Second, channel)
 
 
     @command
@@ -207,7 +207,7 @@ class Plugin:
         self.sendMessage(channel, mask.nick + " is ready to burn one, who else is in?")
     
         # Start the four minute timer
-        self.bot.goTime(4*60, self.warn20Second, channel)
+        self.bot.loop.call_later(4*60, self.warn20Second, channel)
         
     def sendMessage(self, channel, text):
         print('smoke~~~ ' + text)
