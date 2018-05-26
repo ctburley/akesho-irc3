@@ -186,7 +186,8 @@ class Plugin:
                         del self.jots[target][key]
                 else:
                     del self.jots[target][key]
-                self.bot.privmsg(nick, 'Ok.')
+                if not self.training:
+                    self.bot.privmsg(nick, 'Ok.')
                     
     # --- Reload & Accessors
                     
