@@ -172,9 +172,7 @@ class Plugin:
         self.bot.privmsg(target, nick + ": " + str(count) + " " + result)
     
     def jot_remove(self, nick, target, key, rpi=None, globl=None):
-        if self.training:
-            return
-        if nick in list(self.bot.channels[target].modes['@']):
+        if self.training or nick in list(self.bot.channels[target].modes['@']):
             rpi = int(rpi) if rpi else -1
             target = '' if globl else target
             key = key.lower()
