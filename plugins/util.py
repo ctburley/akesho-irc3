@@ -118,5 +118,5 @@ class mode_based_policy:
         if ( self.context.obeying_commands(target) ):
             if self.has_permission(client, target, predicates.get('permission')):
                 return meth(client, target, args)
-            else
+            else:
                 print("Denying command '{}' requested by '{}' in {}".format(meth.__name__, client.nick, target))
