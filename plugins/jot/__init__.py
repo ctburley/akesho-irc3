@@ -260,6 +260,7 @@ class Plugin:
     
 
 
-    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(\{|\[)(?P<highlvl>\d+)(\}|\])$')
-    def hack_for_treesbot(self, nick, channel, highlvl, **kw):
-        self.jot_core(nick, channel, self.controlchar+highlvl)
+    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<o>\S)(?P<highlvl>\d+)(?P<c>\S)\s*$')
+    def hack_for_treesbot(self, nick, channel, o, highlvl, c, **kw):
+        if o in ['[','{'] or c in [']','}']:
+            self.jot_core(nick, channel, self.controlchar+highlvl)
