@@ -1,11 +1,14 @@
+import irc3
+from irc3.plugins.command import command
 from forecastiopy import *
 
-@plugin
+@irc3.plugin
 class WeatherIRC3:
     def __init__(self, bot):
         self.bot = bot
         self.apikey=self.bot.config.get('weather', {}).get('apikey',None)
         self.toc=lambda x: (x-32)/1.8
+        self.bearing=lambda x: (["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE","S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"])[int(16*(x/360))]
         
     @command
     def weather(self, mask, channel, args):
@@ -14,10 +17,10 @@ class WeatherIRC3:
         where = ' '.join(args['<location>'])
         location = self.bot.googlemaps().geocode(where)[0]
         fio = ForecastIO.ForecastIO(dskey,
-            'units'=ForecastIO.ForecastIO.UNITS_US,
-            'exclude'='minutely,flags',
-            'latitude'=location['geometry']['location']['lat'],
-            'longitude'=location['geometry']['location']['lng']
+            units=ForecastIO.ForecastIO.UNITS_US,
+            exclude='minutely,flags',
+            latitude=location['geometry']['location']['lat'],
+            longitude=location['geometry']['location']['lng']
         )
         
         data = {
@@ -29,7 +32,7 @@ class WeatherIRC3:
             'dsum': fio.daily['summary'],
             'mwind': fio.currently['windSpeed'],
             'kwind': fio.currently['windSpeed']*1.60934,
-            'wbearing': (["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE","S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"])[int(16*(fio.currently['windBearing']/360))],
+            'wbearing': self.bearing(fio.currently['windBearing']),
             'fhigh': fio.daily['data'][0]['temperatureHigh'],
             'flow': fio.daily['data'][0]['temperatureLow'],
             'chigh': self.toc(fio.daily['data'][0]['temperatureHigh']),
