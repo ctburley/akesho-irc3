@@ -1,7 +1,7 @@
 import irc3
 import googlemaps
 
-@plugin
+@irc3.plugin
 class Googlemaps_IRC3:
     def __init__(self, bot):
         self.bot = bot
