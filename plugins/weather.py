@@ -4,7 +4,7 @@ from forecastiopy import *
 class WeatherIRC3:
     def __init__(self, bot):
         self.bot = bot
-        self.apikey=self.bot.config.get('weather', {}).get('apikey',None))
+        self.apikey=self.bot.config.get('weather', {}).get('apikey',None)
         self.toc=lambda x: (x-32)/1.8
         
     @command
