@@ -16,7 +16,7 @@ class WeatherIRC3:
             %%weather <location>..."""
         where = ' '.join(args['<location>'])
         location = self.bot.googlemaps().geocode(where)[0]
-        fio = ForecastIO.ForecastIO(dskey,
+        fio = ForecastIO.ForecastIO(self.apikey,
             units=ForecastIO.ForecastIO.UNITS_US,
             exclude='minutely,flags',
             latitude=location['geometry']['location']['lat'],

@@ -227,7 +227,7 @@ class Plugin:
     def tz_load(self):
         self.music_text = " ♫ Don't forget to turn your music back on! ♬ "
         self.music_last = datetime.utcnow() - timedelta(hours=1)
-        self.store = Store20(self.bot.config.get('smoke', {}).get('key',None),'./data/smoke')
+        self.store = Store20('./data/smoke')
         self.announce_to = self.bot.config.get('smoke', {}).get('announce', '')
         
     @command(permission='admin')
@@ -294,8 +294,7 @@ class Plugin:
             self.store.update()
 
 class Store20:
-    def __init__(self, key, tzfile):
-        self.googlemaps = googlemaps.Client(key=key)
+    def __init__(self, tzfile):
         self.tzfile = tzfile
         self.location = {}
         self.offset = {}
@@ -320,7 +319,7 @@ class Store20:
     def update(self):
         self.offset = {}
         for pid in self.location:
-            self.location[pid]['timezone'] = self.googlemaps.timezone(self.location[pid]['geocode']['geometry']['location'])
+            self.location[pid]['timezone'] = self.bot.googlemaps().timezone(self.location[pid]['geocode']['geometry']['location'])
             offset = timezone['rawOffset']+timezone['dstOffset']
             if offset not in self.offset:
                 self.offset[offset] = []
@@ -355,10 +354,10 @@ class Store20:
         return lines
         
     def add(self, name, by):
-        geocode = self.googlemaps.geocode(name)
+        geocode = self.bot.googlemaps().geocode(name)
         if geocode:
             geocode = geocode[0]
-            timezone = self.googlemaps.timezone(geocode['geometry']['location'])
+            timezone = self.bot.googlemaps().timezone(geocode['geometry']['location'])
             offset = timezone['rawOffset']+timezone['dstOffset']
             self.location[geocode['place_id']] = {'by':by, 'name':name,'geocode':geocode,'timezone':timezone}
             if offset not in self.offset:
