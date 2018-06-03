@@ -36,7 +36,7 @@ class WeatherIRC3:
             'fhigh': fio.daily['data'][0]['temperatureHigh'],
             'flow': fio.daily['data'][0]['temperatureLow'],
             'chigh': self.toc(fio.daily['data'][0]['temperatureHigh']),
-            'clow': self.toc(fio.daily['data'][0]['temperatureHigh'])
+            'clow': self.toc(fio.daily['data'][0]['temperatureLow'])
         }
         output="[{location} - {ftemp:.0f}F/{ctemp:.0f}C {humidity:.0%} {mwind:.0f}MPH/{kwind:.0f}KPH {wbearing}, High: {fhigh:.0f}F/{chigh:.0f}C, Low: {flow:.0f}F/{clow:.0f}C] {hsum} {dsum} - https://darksky.net/poweredby/"
         self.bot.privmsg(channel, output.format(**data))
