@@ -27,8 +27,6 @@ class Plugin:
 	
 	@irc3.event('^(@(?P<tags>\S+) )?:(?P<nick>\S+)(?P<mask>!\S+@\S+) PRIVMSG (?P<channel>\S+) :\.befs$')
 	def befs(self, nick=None, mask=None, channel=None, **kw):
-#		if channel == '#trees':
-#		    return
 		if self.bot.obeying_commands(channel):
 			rec = self.get_record(nick)
 			if rec is not None:
@@ -47,14 +45,11 @@ class Plugin:
 	
 	@irc3.event('^(@(?P<tags>\S+) )?:(?P<nick>\S+)(?P<mask>!\S+@\S+) PRIVMSG (?P<channel>\S+) :\.bef\s+(?P<target>\S+)\s*$')
 	def bef(self, nick=None, mask=None, channel=None, target=None, **kw):
-#		if channel == '#trees':
-#		    return
 		if self.bot.obeying_commands(channel):
 			target = target.strip()
 			if target in self.bot.channels[channel]:
 				rec = self.get_record(nick)
 				if rec is None:
-					print ('no record')
 					rec = {channel:{target:1, '  total  ':1}}
 				else:
 					if channel not in rec:
