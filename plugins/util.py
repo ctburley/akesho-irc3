@@ -56,15 +56,6 @@ class Utility:
         """
         s.bot.part(t)
 
-    @command(permission='admin',show_in_help_list=False)
-    def reload(s,m,t,a):
-        """Reload a plugin
-            
-            %%reload <plugin_name>
-        """
-        s.bot.privmsg(m.nick, "Reloading " + a['<plugin_name>'] + " module. . . ")
-        s.bot.reload(a['<plugin_name>'])
-    
     @irc3.extend
     def np(self, inp):
         return inp[:1]+u'\u200B'+inp[1:]
