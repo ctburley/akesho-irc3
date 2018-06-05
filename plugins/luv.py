@@ -44,7 +44,7 @@ class UserActions:
         self.strings['snuggles'] = (
             "Finding themselves without a blanket, {nick} grabs {target} and curls up to get warm.",
             "Roses are red, {nick} learned to juggle. Will that impress {target} enough to snuggle?",
-            "A snuggly {nick} reaches out and grabs an arm, pulling {nick} in for additional heat.",
+            "A snuggly {nick} reaches out and grabs an arm, pulling {target} in for additional heat.",
             "Holding {target} tight, a content {nick} ponders the evils of a world without snuggling...",
             "{nick} asks {target} whose turn it is to be the big spoon?",
             "{nick} lays their head on {target}'s shoulder and sighs happily.",
