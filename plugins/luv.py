@@ -68,7 +68,7 @@ class UserActions:
             %%hug <someone>...
         """
         target = ' '.join(args['<someone>'])
-        self.bot.privmsg(channel, "\x01ACTION *** "+str(choice(self.strings['hugs'])).format(target=target,nick=mask.nick)+"\x01")
+        self.bot.privmsg(channel, " *** "+str(choice(self.strings['hugs'])).format(target=target,nick=mask.nick))
     
     @command
     def snuggle(self, mask, channel, args):
@@ -76,5 +76,5 @@ class UserActions:
             %%snuggle <someone>...
         """
         target = ' '.join(args['<someone>'])
-        self.bot.privmsg(channel, "\x01ACTION *** "+str(choice(self.strings['snuggles'])).format(target=target,nick=mask.nick)+"\x01")
+        self.bot.privmsg(channel, " *** "+str(choice(self.strings['snuggles'])).format(target=target,nick=mask.nick))
         
