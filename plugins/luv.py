@@ -19,7 +19,7 @@ class UserActions:
             'how could I not?',
             'happy to help!',
             'beep boop.'
-       )
+        )
 
         self.strings['hugs'] = (
             "{nick} wraps {target} with seven hairy arms and squeezes until they look like a koosh toy!",
@@ -27,18 +27,28 @@ class UserActions:
             "{nick} wraps arms around {target} and clings forever",
             "{nick} gives {target} a BIIIIIIIIG hug!!!",
             "{nick} gives {target} a warming hug",
-            "{nick} hugs {target} into a coma",
-            "{nick} squeezes {target} to death",
-            "{nick} gives {target} a christian side hug",
-            "{nick} glomps {target}",
-            "{nick} gives {target} a well-deserved hug :)",
-            "{nick} hugs {target}",
-            "{nick} hugs {target} forever and ever and ever",
-            "cant stop, wont stop. {nick} hugs {target} until the sun goes cold",
+            "{nick} hugs {target} into a coma xP",
+            "{nick} squeezes {target} like they were an avocado...",
+            "{nick} pulls {target} into a tight, friendly shoulder hug.",
+            "{nick} runs at and tackles {target} into a pile of pillows, hugging them in a rain of feathers!",
+            "{nick} gives {target} a very friendly hug :)",
+            "{nick} hugs {target}!",
+            "{nick} hugs {target} forever and ever and ever~ and ever~ <3",
+            "With a hug so tight it could create a quantum singularity, {nick} embraces {target} until the sun goes cold.",
             "{nick} rallies up everyone in the channel to give {target} a group hug",
-            "{nick} gives {target} a tight hug and rubs their back",
-            "{nick} hugs {target} and gives their hair a sniff",
-            "{nick} smothers {target} with a loving hug"            
+            "{nick} dances happily, holding {target} in a tight hug!",
+            "{nick} jumps at {target} and growls like a tiger, then bites their arm saying, 'mouf hug', through their teeth.",
+            "{nick} smothers {target} with a loving hug."
+        )
+        
+        self.strings['snuggles'] = (
+            "Finding themselves without a blanket, {nick} grabs {target} and curls up to get warm.",
+            "Roses are red, {nick} learned to juggle. Will that impress {target} enough to snuggle?",
+            "A snuggly {nick} reaches out and grabs an arm, pulling {nick} in for additional heat.",
+            "Holding {target} tight, a content {nick} ponders the evils of a world without snuggling...",
+            "{nick} asks {target} whose turn it is to be the big spoon?",
+            "{nick} lays their head on {target}'s shoulder and sighs happily.",
+            "Without a care in the world, {nick} snuggle back up with {target}."
         )
                             
         print("<3 <3 <3 luv ~ LOADE")
@@ -58,5 +68,13 @@ class UserActions:
             %%hug <someone>...
         """
         target = ' '.join(args['<someone>'])
-        self.bot.privmsg(channel, "\x01ACTION "+str(choice(self.strings['hugs'])).format(target=target,nick=mask.nick)+"\x01")
+        self.bot.privmsg(channel, "\x01ACTION *** "+str(choice(self.strings['hugs'])).format(target=target,nick=mask.nick)+"\x01")
+    
+    @command
+    def snuggle(self, mask, channel, args):
+        """Snuggle someone!
+            %%snuggle <someone>...
+        """
+        target = ' '.join(args['<someone>'])
+        self.bot.privmsg(channel, "\x01ACTION *** "+str(choice(self.strings['snuggles'])).format(target=target,nick=mask.nick)+"\x01")
         
