@@ -4,15 +4,14 @@ from random import choice
 @irc3.plugin
 class StringModifier:
     
+    TO_SUPER = str.maketrans("abcdefghijklmnoprstuvwxyzABDEGHIJKLMNOPRTUVW0123456789+-=()", "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻᴬᴮᴰᴱᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᴿᵀᵁⱽᵂ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
+    HALFWIDTH_TO_FULLWIDTH = str.maketrans(
+        '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&()*+,-./:;<=>?@[]^_`{|}~',
+        '０１２３４５６７８９ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！゛＃＄％＆（）＊＋、ー。／：；〈＝〉？＠［］＾＿‘｛｜｝～'
+    )
+    
     def __init__(self, bot):
         self.bot = bot
-        
-        self.TO_SUPER = str.maketrans("abcdefghijklmnoprstuvwxyzABDEGHIJKLMNOPRTUVW0123456789+-=()", "ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻᴬᴮᴰᴱᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᴿᵀᵁⱽᵂ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾")
-        self.HALFWIDTH_TO_FULLWIDTH = str.maketrans(
-            '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&()*+,-./:;<=>?@[]^_`{|}~',
-            '０１２３４５６７８９ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！゛＃＄％＆（）＊＋、ー。／：；〈＝〉？＠［］＾＿‘｛｜｝～'
-        )
-        
         self.features = {
             'rainbow':   ['(?:rainbow|rb)\s*(?P<text>.*)?',             self.rainbow],
             'wrainbow':  ['(?:wrainbow|wrb)\s*(?P<text>.*)?',           self.wrainbow],
@@ -22,7 +21,8 @@ class StringModifier:
             'title':     ['title(?:case)?\s*(?P<text>.*)?',             self.title],
             'swapcase':  ['sw(?:itch|ap)?(?:case)?\s*(?P<text>.*)?',    self.swap],
             'super':     ['super(?:script)?\s*(?P<text>.*)?',           self.super],
-            'reverse':   ['rev(?:erse)?\s*(?P<text>.*)?',               self.reverse]
+            'reverse':   ['rev(?:erse)?\s*(?P<text>.*)?',               self.reverse],
+            'dekify':    ['dek(?:ify)?\s*(?P<text>.*)?',                        self.dekify]
         }
         
         # compile feature regexps
@@ -64,6 +64,9 @@ class StringModifier:
     def reverse(self, text):
         return self.strip(text)[::-1]
     
+    def dekify(self, text):
+        u, l = text.upper(), text.lower()
+        return ''.join([choice([u[i],l[i]]) for i in range(len(u))])
     
     
     # ---  Core
