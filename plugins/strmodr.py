@@ -21,7 +21,7 @@ class StringModifier:
                 '(?:wrainbow|wrb)\s*(?P<text>.*)?', self.wrainbow],
             
             'fullwidth': [ # (fw|vapor|aes|fullwidth) (.*)
-                '(?:fw|vapor|aes|fullwidth)\s*(?P<text>.*)?', lambda text: text.translate(self.HALFWIDTH_TO_FULLWIDTH)],
+                '(?:fw|vapor|aes|fullwidth)\s*(?P<text>.*)?', lambda text: self.strip(text).translate(self.HALFWIDTH_TO_FULLWIDTH)],
             
             'uppercase': [ # up[percase]) (.*)
                 'upper(?:case)?\s*(?P<text>.*)?', lambda x: str(x).upper()],
@@ -36,7 +36,7 @@ class StringModifier:
                 'sw(?:itch|ap)?(?:case)?\s*(?P<text>.*)?', lambda x: str(x).swapcase()],
             
             'super': [
-                'super(?:script)?\s*(?P<text>.*)?', lambda text: text.translate(self.TO_SUPER)],
+                'super(?:script)?\s*(?P<text>.*)?', lambda text: self.strip(text).translate(self.TO_SUPER)],
             
             'reverse': [
                 'rev(?:erse)?\s*(?P<text>.*)?', lambda text: text[::-1]]
