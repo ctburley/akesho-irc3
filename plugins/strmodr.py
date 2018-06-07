@@ -13,35 +13,39 @@ class StringModifier:
     def __init__(self, bot):
         self.bot = bot
         self.features = {
-            'rainbow':   ['(?:rainbow|rb)\s*(?P<text>.*)?',             self.rainbow],
-            'wrainbow':  ['(?:wrainbow|wrb)\s*(?P<text>.*)?',           self.wrainbow],
-            'fullwidth': ['(?:fw|vapor|aes|fullwidth)\s*(?P<text>.*)?', self.full],
-            'uppercase': ['upper(?:case)?\s*(?P<text>.*)?',             self.upper],
-            'lowercase': ['lower(?:case)?\s*(?P<text>.*)?',             self.lower],
-            'title':     ['title(?:case)?\s*(?P<text>.*)?',             self.title],
-            'swapcase':  ['sw(?:itch|ap)?(?:case)?\s*(?P<text>.*)?',    self.swap],
-            'super':     ['super(?:script)?\s*(?P<text>.*)?',           self.super],
-            'reverse':   ['rev(?:erse)?\s*(?P<text>.*)?',               self.reverse],
-            'dekify':    ['dek(?:ify)?\s*(?P<text>.*)?',                        self.dekify]
+            'stripformat':  ['strip(?:f(?:ormat)?)?',       self.stripformat],
+            'rainbow':      ['(?:rainbow|rb)',              self.rainbow],
+            'wrainbow':     ['(?:wrainbow|wrb)',            self.wrainbow],
+            'fullwidth':    ['(?:fw|vapor|aes|fullwidth)',  self.full],
+            'uppercase':    ['upper(?:case)?',              self.upper],
+            'lowercase':    ['lower(?:case)?',              self.lower],
+            'title':        ['title(?:case)?',              self.title],
+            'swapcase':     ['sw(?:itch|ap)?(?:case)?',     self.swap],
+            'super':        ['super(?:script)?',            self.super],
+            'reverse':      ['rev(?:erse)?',                self.reverse],
+            'dekify':       ['dek(?:ify)?',                 self.dekify],
+            'embolden':     ['(?:bold|embolden)',           self.embolden],
+            'italicize':    ['ital(?:ic(?:ize)?)?',         self.italicize],
+            'underline':    ['under(?:line)?',              self.underline],
         }
         
         # compile feature regexps
         for feature in self.features:
-            self.features[feature][0] = re.compile('^\s*'+self.features[feature][0]+'\s*$')
+            self.features[feature][0] = re.compile('^\s*'+self.features[feature][0]+'\s*(?P<text>.*)?\s*$')
         
         print("strmodr ~ loaded".translate(self.HALFWIDTH_TO_FULLWIDTH))
        
     # --- Features
-    def strip(self, text):
-        return re.sub("[\u0003\u0002\u001F\u000F](?:,?\d{1,2}(?:,\d{1,2})?)?", '', text)
+    def stripformat(self, text):
+        return re.sub("[\u0003\u0002\u001F\u001D\u000F](?:,?\d{1,2}(?:,\d{1,2})?)?", '', text)
         
     def rainbow(self, text):
-        text = self.strip(text)
-        return ''.join([u"\x03{:02},{:02}{}".format((l%10)+3,99,text[l]) for l in range(len(text))])
+        text = self.stripformat(text)
+        return ''.join([u"\x03{:02}{}".format((l%10)+3,text[l]) for l in range(len(text))])
     
     def wrainbow(self, text):
-        text = self.strip(text)
-        return ' '.join([u"\x03{},{}{}".format(choice(range(10))+3,99,l) for l in text.split(' ')])
+        text = self.stripformat(text)
+        return ' '.join([u"\x03{}{}".format(choice(range(10))+3,l) for l in text.split(' ')])
     
     def full(self, text):
         return self.strip(text).translate(self.HALFWIDTH_TO_FULLWIDTH)
@@ -59,14 +63,24 @@ class StringModifier:
         return str(text).swapcase()
     
     def super(self, text):
-        return self.strip(text).translate(self.TO_SUPER)
+        return self.stripformat(text).translate(self.TO_SUPER)
             
     def reverse(self, text):
-        return self.strip(text)[::-1]
+        return self.stripformat(text)[::-1]
     
     def dekify(self, text):
+        text = self.stripformat(text)
         u, l = text.upper(), text.lower()
         return ''.join([choice([u[i],l[i]]) for i in range(len(u))])
+    
+    def embolden(self, text):
+        return "\x02"+text
+    
+    def italicize(self, text):
+        return "\x1D"+text
+    
+    def underline(self, text):
+        return "\x1F"+text
     
     
     # ---  Core
