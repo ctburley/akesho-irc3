@@ -21,12 +21,13 @@ class StringModifier:
             'lowercase':    ['lower(?:case)?',              self.lower],
             'title':        ['title(?:case)?',              self.title],
             'swapcase':     ['sw(?:itch|ap)?(?:case)?',     self.swap],
-            'super':        ['super(?:script)?',            self.super],
+            'superscript':  ['super(?:script)?',            self.super],
             'reverse':      ['rev(?:erse)?',                self.reverse],
             'dekify':       ['dek(?:ify)?',                 self.dekify],
             'embolden':     ['(?:bold|embolden)',           self.embolden],
             'italicize':    ['ital(?:ic(?:ize)?)?',         self.italicize],
             'underline':    ['under(?:line)?',              self.underline],
+            'stringhelp':   ['stringhelp', self.help]
         }
         
         # compile feature regexps
@@ -36,6 +37,9 @@ class StringModifier:
         print("strmodr ~ loaded".translate(self.HALFWIDTH_TO_FULLWIDTH))
        
     # --- Features
+    def help(self, text):
+        return "commands available: " + ', '.join(list(self.features.keys()))
+        
     def stripformat(self, text):
         return re.sub("[\u0003\u0002\u001F\u001D\u000F](?:,?\d{1,2}(?:,\d{1,2})?)?", '', text)
         
