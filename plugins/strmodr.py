@@ -55,7 +55,7 @@ class StringModifier:
         return ' '.join([u"\x03{}{}".format(choice(range(10))+3,l) for l in text.split(' ')])
     
     def full(self, text):
-        return self.strip(text).translate(self.HALFWIDTH_TO_FULLWIDTH)
+        return self.stripformat(text).translate(self.HALFWIDTH_TO_FULLWIDTH)
     
     def upper(self, text):
         return str(text).upper()
@@ -99,6 +99,7 @@ class StringModifier:
             text = None
             datas = datas.split('|')
             for data in datas:
+                print(data)
                 for name in self.features:
                     (pattern, func) = self.features[name]
                     result = pattern.match(data)
