@@ -14,35 +14,15 @@ class StringModifier:
         )
         
         self.features = {
-            'rainbow': [ # (rainbow|rb) (.*)
-                '(?:rainbow|rb)\s*(?P<text>.*)?', self.rainbow],
-            
-            'wrainbow': [ # (wrainbow|wrb) (.*)
-                '(?:wrainbow|wrb)\s*(?P<text>.*)?', self.wrainbow],
-            
-            'fullwidth': [ # (fw|vapor|aes|fullwidth) (.*)
-                '(?:fw|vapor|aes|fullwidth)\s*(?P<text>.*)?', lambda text: self.strip(text).translate(self.HALFWIDTH_TO_FULLWIDTH)],
-            
-            'uppercase': [ # up[percase]) (.*)
-                'upper(?:case)?\s*(?P<text>.*)?', lambda x: str(x).upper()],
-            
-            'lowercase': [ # lower[case] (.*)
-                'lower(?:case)?\s*(?P<text>.*)?', lambda x: str(x).lower()],
-            
-            'title': [ # title[case] (.*)
-                'title(?:case)?\s*(?P<text>.*)?', lambda x: str(x).title()],
-            
-            'swapcase': [ # sw(itch|ap)[case] (.*)
-                'sw(?:itch|ap)?(?:case)?\s*(?P<text>.*)?', lambda x: str(x).swapcase()],
-            
-            'super': [
-                'super(?:script)?\s*(?P<text>.*)?', lambda text: self.strip(text).translate(self.TO_SUPER)],
-            
-            'reverse': [
-                'rev(?:erse)?\s*(?P<text>.*)?', lambda text: text[::-1]]
-            
-            
-            
+            'rainbow':   ['(?:rainbow|rb)\s*(?P<text>.*)?',             self.rainbow],
+            'wrainbow':  ['(?:wrainbow|wrb)\s*(?P<text>.*)?',           self.wrainbow],
+            'fullwidth': ['(?:fw|vapor|aes|fullwidth)\s*(?P<text>.*)?', self.full],
+            'uppercase': ['upper(?:case)?\s*(?P<text>.*)?',             self.upper],
+            'lowercase': ['lower(?:case)?\s*(?P<text>.*)?',             self.lower],
+            'title':     ['title(?:case)?\s*(?P<text>.*)?',             self.title],
+            'swapcase':  ['sw(?:itch|ap)?(?:case)?\s*(?P<text>.*)?',    self.swap],
+            'super':     ['super(?:script)?\s*(?P<text>.*)?',           self.super],
+            'reverse':   ['rev(?:erse)?\s*(?P<text>.*)?',               self.reverse]
         }
         
         # compile feature regexps
@@ -63,6 +43,27 @@ class StringModifier:
         text = self.strip(text)
         return ' '.join([u"\x03{},{}{}".format(choice(range(10))+3,99,l) for l in text.split(' ')])
     
+    def full(self, text):
+        return self.strip(text).translate(self.HALFWIDTH_TO_FULLWIDTH)],
+    
+    def upper(self, text):
+        return str(text).upper()
+            
+    def lower(self, text):
+        return str(text).lower()
+    
+    def title(self, text):
+        return str(text).title()
+        
+    def swap(self, text):
+        return str(text).swapcase()
+    
+    def super(self, text)
+        return self.strip(text).translate(self.TO_SUPER)],
+            
+    def reverse(self, text):
+        return self.strip(text)[::-1]
+    
     
     
     # ---  Core
@@ -71,7 +72,7 @@ class StringModifier:
     def _core(self, nick, target, datas, **kw):
         if (self.bot.obeying_commands(target)):
             text = None
-            datas = datas.split(' | ')
+            datas = datas.split('|')
             for data in datas:
                 for name in self.features:
                     (pattern, func) = self.features[name]
