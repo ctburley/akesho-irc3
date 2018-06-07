@@ -1,5 +1,6 @@
 import irc3, re
 from random import choice
+from zalgo_text import zalgo
 
 @irc3.plugin
 class StringModifier:
@@ -9,6 +10,7 @@ class StringModifier:
         '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&()*+,-./:;<=>?@[]^_`{|}~',
         '０１２３４５６７８９ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！゛＃＄％＆（）＊＋、ー。／：；〈＝〉？＠［］＾＿‘｛｜｝～'
     )
+    ZALGO = zalgo.zalgo()
     
     def __init__(self, bot):
         self.bot = bot
@@ -27,6 +29,7 @@ class StringModifier:
             'embolden':     ['(?:bold|embolden)',           self.embolden],
             'italicize':    ['ital(?:ic(?:ize)?)?',         self.italicize],
             'underline':    ['under(?:line)?',              self.underline],
+            'zalgofy':      ['zalgo(?:i?fy)?',                self.zalgofy],
             'stringhelp':   ['stringhelp', self.help]
         }
         
@@ -86,7 +89,8 @@ class StringModifier:
     def underline(self, text):
         return "\x1F"+text
     
-    
+    def zalgofy(self, text):
+        return self.ZALGO.zalgofy(self.stripformat(text))
     # ---  Core
         
     @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<target>\S+) :!(?P<datas>.*)$')
@@ -104,5 +108,5 @@ class StringModifier:
                             return
                         text = func(result.group('text') if text is None else text)
             if text is not None:
-                self.bot.privmsg(target, " "+text)
+                self.bot.privmsg(target, self.bot.np("  ")[1]+text)
     
