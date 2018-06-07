@@ -44,7 +44,7 @@ class StringModifier:
         return ' '.join([u"\x03{},{}{}".format(choice(range(10))+3,99,l) for l in text.split(' ')])
     
     def full(self, text):
-        return self.strip(text).translate(self.HALFWIDTH_TO_FULLWIDTH)],
+        return self.strip(text).translate(self.HALFWIDTH_TO_FULLWIDTH)
     
     def upper(self, text):
         return str(text).upper()
@@ -58,8 +58,8 @@ class StringModifier:
     def swap(self, text):
         return str(text).swapcase()
     
-    def super(self, text)
-        return self.strip(text).translate(self.TO_SUPER)],
+    def super(self, text):
+        return self.strip(text).translate(self.TO_SUPER)
             
     def reverse(self, text):
         return self.strip(text)[::-1]
