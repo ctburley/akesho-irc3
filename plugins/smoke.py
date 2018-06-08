@@ -227,7 +227,7 @@ class Plugin:
     def tz_load(self):
         self.music_text = " ♫ Don't forget to turn your music back on! ♬ "
         self.music_last = datetime.utcnow() - timedelta(hours=1)
-        self.store = Store20('./data/smoke')
+        self.store = Store20(self.bot, './data/smoke')
         self.announce_to = self.bot.config.get('smoke', {}).get('announce', '')
         
     @command(permission='admin')
@@ -294,7 +294,8 @@ class Plugin:
             self.store.update()
 
 class Store20:
-    def __init__(self, tzfile):
+    def __init__(self, bot, tzfile):
+        self.bot = bot
         self.tzfile = tzfile
         self.location = {}
         self.offset = {}
