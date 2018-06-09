@@ -320,7 +320,7 @@ class Store20:
     def update(self):
         self.offset = {}
         for pid in self.location:
-            self.location[pid]['timezone'] = self.bot.googlemaps().timezone(self.location[pid]['geocode']['geometry']['location'])
+            timezone = self.location[pid]['timezone'] = self.bot.googlemaps().timezone(self.location[pid]['geocode']['geometry']['location'])
             offset = timezone['rawOffset']+timezone['dstOffset']
             if offset not in self.offset:
                 self.offset[offset] = []
