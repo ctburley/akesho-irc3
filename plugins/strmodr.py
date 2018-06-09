@@ -35,7 +35,7 @@ class StringModifier:
         
         # compile feature regexps
         for feature in self.features:
-            self.features[feature][0] = re.compile('^\s*'+self.features[feature][0]+'\s*(?P<text>.*)?\s*$')
+            self.features[feature][0] = re.compile('^\s*'+self.features[feature][0]+'(?:\s+(?P<text>.*))?\s*$')
         
         print("strmodr ~ loaded".translate(self.HALFWIDTH_TO_FULLWIDTH))
        
