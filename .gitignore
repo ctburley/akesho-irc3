@@ -1,6 +1,6 @@
 data/
 __pycache__/
-*.ini
+akesho.ini
 .git
 run
 playground/
