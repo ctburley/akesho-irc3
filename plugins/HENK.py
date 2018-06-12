@@ -32,7 +32,7 @@ class Henk:
         self.lineCount[filename] = 0
         self.dekDelay[filename] = 70
         
-        with shelve.open(os.path.join(self.directory, filename+'-data')) as data:
+        with shelve.open(os.path.join(self.directory, filename.replace('#','_')+'-data')) as data:
             self.huntEnabled[filename] = 'hunt' in data
             self.quietFail[filename] = False if 'quiet' not in data else data['quiet']
             self.dekTime[filename] = -1 if 'dekTime' not in data else data['dekTime']
@@ -50,7 +50,7 @@ class Henk:
         d_to = args['<to>'].lower()
         if args['yes']:
             print("DEKS MERGING FROM: " + d_from + "  TO: " + d_to + "  BY: " + mask.nick)
-            with shelve.open(os.path.join(self.directory, target)) as reks:
+            with shelve.open(os.path.join(self.directory, target.replace('#','_'))) as reks:
                 self.bot.privmsg(mask.nick, "Ok.")
                 reks[d_to] = {'f': (reks[d_to]['f'] + reks[d_from]['f']), 'b': (reks[d_to]['b'] + reks[d_from]['b'])}
                 del reks[d_from]
@@ -66,12 +66,12 @@ class Henk:
         self.bot.privmsg(target, ''.join([choice([u[i],l[i]]) for i in range(len(u))]), immediate)
 
     def get_record(self, target, nick):
-        with shelve.open(self.directory+target) as records:
+        with shelve.open(self.directory+target.replace('#','_')) as records:
             record = {'f': 0, 'b': 0} if (nick.lower() not in records) else records[nick.lower()]
         return record
     
     def setRecord(self, target, nick, record):
-        with shelve.open(self.directory+target) as records:
+        with shelve.open(self.directory+target.replace('#','_')) as records:
             records[nick.lower()] = record
     
     @command
@@ -105,7 +105,7 @@ class Henk:
         if args['on']:
             self.huntEnabled[target] = True
             self.dek_send(target, "ok hot stuff, bring it on!")
-            with shelve.open(os.path.join(self.directory, target+'-data')) as data:
+            with shelve.open(os.path.join(self.directory, target.replace('#','_')+'-data')) as data:
                 print("SAVING STATE")
                 data['hunt'] = {}
             return
@@ -113,7 +113,7 @@ class Henk:
             if args['off']:
                 self.huntEnabled[target] = False
                 self.dek_send(target, "i see how it is, pansy!")
-                with shelve.open(os.path.join(self.directory, target+'-data')) as data:
+                with shelve.open(os.path.join(self.directory, target.replace('#','_')+'-data')) as data:
                     if 'hunt' in data:
                         del data['hunt']
                 return
@@ -124,7 +124,7 @@ class Henk:
                 self.dek_send(target, "i will now be less verbose. repeat to toggle.")
             else:
                 self.dek_send(target, "i will not be less verbose. repeat to toggle.")
-            with shelve.open(self.directory+target+'-data') as data:
+            with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
                 data['quiet'] = self.quietFail[target]
             return
         
@@ -148,7 +148,7 @@ class Henk:
                     self.dekSpotted[target] = True
                     self.dek_send(target, "there is a dek", False)
                     self.dekTime[target] = time.time()
-                    with shelve.open(self.directory + target + '-data') as data:
+                    with shelve.open(self.directory + target.replace('#','_') + '-data') as data:
                         data['dekTime'] = self.dekTime[target]
                     return
             
@@ -183,7 +183,7 @@ class Henk:
                     record['slow'] = tDiff
                 
                 self.setRecord(target, mask.nick, record)
-                with shelve.open(self.directory+target+'-data') as data:
+                with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
                     data['dekTime'] = -1
                 self.dek_send(target, "henk henk henk! after " + str(round(tDiff, 3)) + " seconds; " + str(mask.nick) + ", " + str(record['f']) + " deks now owe you a life debt." + fasts)
                 self.dekSpotted[target] = False
@@ -222,7 +222,7 @@ class Henk:
                     record['slow'] = tDiff
                 
                 self.setRecord(target, mask.nick, record)
-                with shelve.open(self.directory+target+'-data') as data:
+                with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
                     data['dekTime'] = -1
                 self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
                 self.dekSpotted[target] = False
@@ -266,7 +266,7 @@ class Henk:
             return
 
         top = {}
-        with shelve.open(self.directory+target) as records:
+        with shelve.open(self.directory+target.replace('#','_')) as records:
             s_records = sorted(records, key=lambda x: records[x]['f'], reverse=True)
             idx = 0
             while idx < 5 and idx < len(s_records):
@@ -291,7 +291,7 @@ class Henk:
             return
 
         top = {}
-        with shelve.open(self.directory+target) as records:
+        with shelve.open(self.directory+target.replace('#','_')) as records:
             s_records = sorted(records, key=lambda x: records[x]['b'], reverse=True)
             idx = 0
             while idx < 5 and idx < len(s_records):
@@ -337,7 +337,7 @@ class Henk:
             s = '' if pot is None else "Longest time a dek has been free is " + str(round(pot['slow'])) + " seconds. " + \
                                        pot['name'] + " ended that in "+pot_channel+"."
         else:
-            with shelve.open(self.directory+target) as records:
+            with shelve.open(self.directory+target.replace('#','_')) as records:
                 for name in records.keys():
                     rec = records[name]
                     if 'name' not in rec:
