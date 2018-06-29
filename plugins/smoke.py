@@ -276,12 +276,12 @@ class Plugin:
                 lines = self.store.list(name=args['<name>'])
             else:
                 lines = self.store.list()
-        
-        if len(lines) == 2:
-            self.bot.privmsg(to, lines[1], True)
-        else:
-            for line in lines:
-                self.bot.privmsg(to, line, True)
+        if len(lines>1):
+            if len(lines) == 2:
+                self.bot.privmsg(to, lines[2], True)
+            else:
+                for line in lines:
+                    self.bot.privmsg(to, line, True)
     
     @cron('15 16 * * *')
     def my420(self):
@@ -373,7 +373,7 @@ class Store20:
         for offset in sorted(self.offset.keys()):
             for pid in self.offset[offset]:
                 loc = self.location[pid]
-                if name in loc['name'] or ('altname' in loc and name in loc['altname']):
+                if name in loc['name'].lower() or ('altname' in loc and name in loc['altname'].lower()):
                     lines.append(line.format(offset/(60*60), loc['timezone']['timeZoneId'], "'{}'".format(loc['name'] if 'altname' not in loc else loc['altname']+'*'), loc['by'], pid))
         return lines
         
