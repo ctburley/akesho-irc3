@@ -276,9 +276,9 @@ class Plugin:
                 lines = self.store.list(name=args['<name>'])
             else:
                 lines = self.store.list()
-        if len(lines>1):
+        if len(lines) > 1:
             if len(lines) == 2:
-                self.bot.privmsg(to, lines[2], True)
+                self.bot.privmsg(to, lines[1], True)
             else:
                 for line in lines:
                     self.bot.privmsg(to, line, True)

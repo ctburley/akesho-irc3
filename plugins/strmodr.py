@@ -99,7 +99,6 @@ class StringModifier:
             text = None
             datas = datas.split('|')
             for data in datas:
-                print(data)
                 for name in self.features:
                     (pattern, func) = self.features[name]
                     result = pattern.match(data)
