@@ -24,6 +24,7 @@ class Plugin:
         if self.smoking(channel):
             del self.wait[channel]
             del self.smokers[channel]
+            self.__dict__.pop('lock420', None)
 
     def smoking(self, channel):
         return channel in self.smokers
@@ -57,6 +58,10 @@ class Plugin:
             
             %%wait
         """
+        if hasattr(self, 'lock420'):
+            self.sendMessage(mask.nick, """https://youtu.be/6SlaGt_E8go""")
+            return
+        
         # Is there a round
         if self.smoking(channel):
             # Round exists, but, have we already waited or hit ten seconds
@@ -77,6 +82,10 @@ class Plugin:
             
             %%ambush
         """
+        if hasattr(self, 'lock420'):
+            self.sendMessage(mask.nick, """https://youtu.be/JjcD2my2bzQ?t=22""")
+            return
+            
         if self.smoking(channel):
             if self.in_cooldown(channel):
                 self.sendMessage(channel, "Last round was less than two minutes ago, go ahead and hit it!")
@@ -126,16 +135,7 @@ class Plugin:
                 reply += self.smokers[channel][-1] +"."
         self.sendMessage(channel, reply)
 
-
-    @command(show_in_help_list=False)
-    def i(self, mask, channel, args):
-        """Join the round, optional arguments allow you to use the command in the beginning of a sentence.
-            
-            %%i [<optional>...]
-        """
-        self.imin(mask, channel, args)
-        
-    @command
+    @command(aliases=['i'],use_shlex=False)
     def imin(self, mask, channel, args):
         """Join the round, optional arguments allow you to use the command in the beginning of a sentence.
             
@@ -186,11 +186,15 @@ class Plugin:
 
 
     @command
-    def getin(self, mask, channel, args, nowait=False):
+    def getin(self, mask, channel, args):
         """Start a round. 
             
             %%getin
         """# Is the round already started?
+        if hasattr(self, 'lock420') and mask.nick != self.bot.nick:
+            print(mask.nick, self.bot.nick)
+            self.sendMessage(mask.nick, """https://youtu.be/XBMxskyDk9o""")
+            return
         if (self.smoking(channel)):
             if self.in_cooldown(channel):
                 self.sendMessage(channel, "Last round was less than two minutes ago, go ahead and hit it!")
@@ -201,7 +205,7 @@ class Plugin:
         
         # Initialize the round information
         self.smokers[channel] = [mask.nick]
-        self.wait[channel] = 0 if not nowait else 2
+        self.wait[channel] = 0
         
         # Inform the channel the round has begun
         self.sendMessage(channel, mask.nick + " is ready to burn one, who else is in?")
@@ -258,19 +262,37 @@ class Plugin:
     @command
     def list420(self, mask, target, args):
         """PM you a list of active time zones, the locations respresented under them, and who added them.
-            %%list420 [<pid>]
+            %%list420
+            %%list420 [-o] pid <pid>
+            %%list420 [-o] name <name>
+            -o  output to channel
         """
-        for line in self.store.list(args['<pid>']):
-            self.bot.privmsg(mask.nick, line, True)
+        to = target if args['-o'] and mask.nick in list(self.bot.channels[target].modes['@']) else mask.nick
+        
+        if args['pid']:
+            lines = self.store.list(pid=args['<pid>'])
+        else:
+            if args['name']:
+                lines = self.store.list(name=args['<name>'])
+            else:
+                lines = self.store.list()
+        
+        if len(lines) == 2:
+            self.bot.privmsg(to, lines[1], True)
+        else:
+            for line in lines:
+                self.bot.privmsg(to, line, True)
     
-    @cron('15 4,16 * * *')
+    @cron('15 16 * * *')
     def my420(self):
+        self.lock420 = self.announce_to
         self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
         self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
         if choice(['a','b','c','d']) == 'c':
             self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
             self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "Oh yeah, that's me...")
-        self.bot.loop.call_later(40,self.getin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [], True)
+        self.bot.loop.call_later(38, self.reset, self.announce_to)
+        self.bot.loop.call_later(40, self.getin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [])
         self.bot.loop.call_later((5*61)+1, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
         
     @cron('*/5 * * * *')
@@ -339,11 +361,11 @@ class Store20:
                     offsets.append(offset)
         return offsets if len(offsets) else None
 
-    def list(self, pid=None):
+    def list(self, pid=None, name=None):
         lines = []
-        # [UTC +12.5]
         line = "[UTC {:<+5.1f}] {:30} {:30} added by {:20} {}"
         lines.append("[UTC {}] {:30} {:30} added by {:20} {}".format('Offset','Time Zone','Location','Nick','Delete ID'))
+        name = name.lower() if name else ''
         if pid:
             if pid in self.location:
                 loc = self.location[pid]
@@ -351,7 +373,8 @@ class Store20:
         for offset in sorted(self.offset.keys()):
             for pid in self.offset[offset]:
                 loc = self.location[pid]
-                lines.append(line.format(offset/(60*60), loc['timezone']['timeZoneId'], "'{}'".format(loc['name'] if 'altname' not in loc else loc['altname']), loc['by'], pid))
+                if name in loc['name'] or ('altname' in loc and name in loc['altname']):
+                    lines.append(line.format(offset/(60*60), loc['timezone']['timeZoneId'], "'{}'".format(loc['name'] if 'altname' not in loc else loc['altname']+'*'), loc['by'], pid))
         return lines
         
     def add(self, name, by):

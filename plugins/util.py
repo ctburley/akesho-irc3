@@ -12,7 +12,6 @@ class Utility:
 
     def __init__(self, bot):
         self.bot = bot
-        self.obey_commands = {}
         print("UTIL ~ LOADE")
     
     #move these into alerts
