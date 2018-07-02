@@ -72,7 +72,7 @@ class Plugin:
             
             # We can delay this round
             self.wait[channel] = 1
-            self.sendMessage(channel, "Hold up, " + mask.nick + " needs another 30 seconds.")
+            self.sendMessage(channel, "Hold up, " + mask.nick + " needs some more time.")
             return
         
     
@@ -162,7 +162,7 @@ class Plugin:
             
             if self.wait[channel] == 1:
                 self.wait[channel] = 2
-                self.bot.loop.call_later(30, self.warn20Second, channel)
+                self.bot.loop.call_later(150, self.warn20Second, channel)
                 return
     
             # Warn the channel
@@ -178,7 +178,7 @@ class Plugin:
             
             if self.wait[channel] == 1:
                 self.wait[channel] = 2
-                self.bot.loop.call_later(30, self.warn20Second, channel)
+                self.bot.loop.call_later(160, self.warn20Second, channel)
                 return
             self.sendMessage(channel, "Twenty seconds, is that bowl packed yet?");
     
