@@ -76,11 +76,11 @@ class Plugin:
             return
         
     
-    @command
+    @command(use_shlex=False)
     def ambush(self, mask, channel, args):
         """Start the countdown early.
             
-            %%ambush
+            %%ambush [<etc>...]
         """
         if hasattr(self, 'lock420'):
             self.sendMessage(mask.nick, """https://youtu.be/JjcD2my2bzQ?t=22""")
