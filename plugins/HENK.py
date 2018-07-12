@@ -2,6 +2,7 @@ import irc3
 import shelve
 import time
 import os
+#import psycopg2
 from random import randint
 from random import choice
 from irc3.plugins.command import command
@@ -320,7 +321,8 @@ class Henk:
         if args['global']:
             top_channel = ""
             pot_channel = ""
-            for file in os.listdir(self.directory):
+            for f in os.listdir(self.directory):
+                file = f.rstrip('.db')
                 if not file.endswith('-data'):
                     with shelve.open(self.directory + file) as records:
                         for name in records.keys():
@@ -349,4 +351,5 @@ class Henk:
             s = '' if pot is None else "Longest time a dek has been free is "+str(round(pot['slow']))+" seconds. " + pot['name'] + " ended that."
 
         self.dek_send(target, f + s)
-        
+
+
