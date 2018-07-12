@@ -17,6 +17,7 @@ class Plugin:
         self.bot = bot
         self.smokers = {}
         self.wait = {}
+        self.current = {}
         self.tz_load()
         print("SMOKE ~ loaded 420 blaze it")
 
@@ -115,7 +116,7 @@ class Plugin:
         self.sendMessage(channel, "Fire in the bowl!")
     
         self.wait[channel] = 3
-        self.bot.loop.call_later(120, self.reset, channel)
+        self.current[channel] = self.bot.loop.call_later(120, self.reset, channel)
 
     @command
     def whosin(self, mask, channel, args):
@@ -162,14 +163,14 @@ class Plugin:
             
             if self.wait[channel] == 1:
                 self.wait[channel] = 2
-                self.bot.loop.call_later(150, self.warn20Second, channel)
+                self.current[channel] = self.bot.loop.call_later(150, self.warn20Second, channel)
                 return
     
             # Warn the channel
             self.sendMessage(channel, "Ten seconds, grab your lighter.")
         
             self.wait[channel] = 2
-            self.bot.loop.call_later(7, self.countdown, channel)
+            self.current[channel] = self.bot.loop.call_later(7, self.countdown, channel)
 
     def warn20Second(self, channel):
         if self.smoking(channel):
@@ -178,11 +179,11 @@ class Plugin:
             
             if self.wait[channel] == 1:
                 self.wait[channel] = 2
-                self.bot.loop.call_later(160, self.warn20Second, channel)
+                self.current[channel] = self.bot.loop.call_later(160, self.warn20Second, channel)
                 return
             self.sendMessage(channel, "Twenty seconds, is that bowl packed yet?");
     
-            self.bot.loop.call_later(10, self.warn10Second, channel)
+            self.current[channel] = self.bot.loop.call_later(10, self.warn10Second, channel)
 
 
     @command
@@ -192,7 +193,6 @@ class Plugin:
             %%getin
         """# Is the round already started?
         if hasattr(self, 'lock420') and mask.nick != self.bot.nick:
-            print(mask.nick, self.bot.nick)
             self.sendMessage(mask.nick, """https://youtu.be/XBMxskyDk9o""")
             return
         if (self.smoking(channel)):
@@ -211,7 +211,7 @@ class Plugin:
         self.sendMessage(channel, mask.nick + " is ready to burn one, who else is in?")
     
         # Start the four minute timer
-        self.bot.loop.call_later(4*60, self.warn20Second, channel)
+        self.current[channel] = self.bot.loop.call_later(4*60, self.warn20Second, channel)
         
     def sendMessage(self, channel, text):
         print('smoke~~~ ' + text)
@@ -283,16 +283,27 @@ class Plugin:
                 for line in lines:
                     self.bot.privmsg(to, line, True)
     
+    @command
+    def test420(self, m,t,a):
+        """jjj
+            %%test420"""
+        self.my420()
+    
     @cron('15 16 * * *')
     def my420(self):
         self.lock420 = self.announce_to
+        self.current[self.announce_to].cancel()
         self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
         self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
-        if choice(['a','b','c','d']) == 'c':
-            self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
-            self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "Oh yeah, that's me...")
-        self.bot.loop.call_later(38, self.reset, self.announce_to)
-        self.bot.loop.call_later(40, self.getin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [])
+        if not self.smoking(self.announce_to):
+            if choice(['a','b','c','d']) == 'c':
+                self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
+                self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "Oh yeah, that's me...")
+        else:
+            self.bot.loop.call_later(33, self.bot.privmsg, self.announce_to, "Oh, ok.")
+            self.bot.loop.call_later((4*60)+40, self.warn20Second, self.announce_to)
+            self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "There we go.")
+        self.bot.loop.call_later(40, self.imin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [])
         self.bot.loop.call_later((5*61)+1, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
         
     @cron('*/5 * * * *')
