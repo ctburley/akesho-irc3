@@ -54,7 +54,7 @@ class UserActions:
         self.strings['gifts'] = (
             "{nick} carefully crafts a gift for {target} out of pipe cleaners and cooked macaroni.",
             "Lacking the essential pipe cleaners, {nick} cooks a delicious macaroni birthday dinner for {target}.",
-            "{nick} wraps a boxin silver paper and ties it with red string for {target}.",
+            "{nick} wraps a box in silver paper and ties it with red string for {target}.",
             "A box appears before {target}! They open it and are showered with love and money and a note. Opening the note it reads, 'wishing you the best, love {nick}!'.",
             "{nick} bakes a three tier cake for {target} and sends them flowers at work.",
             "{nick} sings a birthday song for {target} and dances around wearing a rainbow ghillie suit.",
