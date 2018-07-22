@@ -10,39 +10,48 @@ from random import randint, choice
 from threading import Timer
 from irc3.plugins.command import command
 
+
+class Circle:
+    def __init__(self, bot, channel, smoker):
+        self.bot = bot
+        self.channel = channel
+        self.smokers = [smoker]
+        self.wait = False
+        self.waited = False
+        self.timer = None
+        self.over = False
+        self.current_timer = None
+    
+    def reply(self, line):
+        self.bot.privmsg(self.channel, line, True)
+
+    def reply_action(self, line):
+        self.reply("\x01ACTION " + line + "\x01")
+    
+    def add_smoker(self, smoker):
+        if smoker not in self.smokers:
+            self.smokers.append(smoker)
+    
+    def is_in(self, smoker):
+        return smoker in self.smokers
+    
+    def countdown(self):
+        self.bot.loop.call_later(1, self.reply, "2..")
+        self.bot.loop.call_later(2, self.reply, "1..")
+        self.bot.loop.call_later(3, self.reply, "Fire in the bowl!")
+        self.over = True
+
 @irc3.plugin
 class Plugin:
 
     def __init__(self, bot):
         self.bot = bot
-        self.smokers = {}
-        self.wait = {}
-        self.current = {}
+        self.circles = {}
         self.tz_load()
         print("SMOKE ~ loaded 420 blaze it")
 
     def reset(self, channel):
-        if self.smoking(channel):
-            del self.wait[channel]
-            del self.smokers[channel]
-            self.__dict__.pop('lock420', None)
-
-    def smoking(self, channel):
-        return channel in self.smokers
-
-    def in_cooldown(self, channel):
-        if self.smoking(channel):
-            if self.wait[channel] > 2:
-                return True
-        return False
-        
-    @command
-    def toke(self, mask, channel, args):
-        """Emulates treesbot's !toke command
-            
-            %%toke
-        """
-        self.sendMessage(channel, "420 Hit It!")
+        self.circles.pop(channel, None)
 
     @command
     def iwish(self, mask, channel, args):
@@ -51,7 +60,6 @@ class Plugin:
             %%iwish
         """
         self.sendAction(channel, "packs a bowl for " + mask.nick)
-        self.smokers[channel].extend(['carl','mike','tonya','sasha','patricia','tony','daryl'])
 
     @command
     def wait(self, mask, channel, args):
@@ -59,22 +67,12 @@ class Plugin:
             
             %%wait
         """
-        if hasattr(self, 'lock420'):
-            self.sendMessage(mask.nick, """https://youtu.be/6SlaGt_E8go""")
-            return
-        
-        # Is there a round
-        if self.smoking(channel):
-            # Round exists, but, have we already waited or hit ten seconds
-            if self.wait[channel] > 0:
-                # Already waited, or we have reached the ten second warning
+        if channel in self.circles:
+            if self.circles[channel].wait:
                 self.sendMessage(channel, "We have waited long enough, there is always next round!")
                 return
-            
-            # We can delay this round
-            self.wait[channel] = 1
-            self.sendMessage(channel, "Hold up, " + mask.nick + " needs some more time.")
-            return
+            self.circles[channel].wait = True
+            self.circles[channel].reply("Hold up, " + mask.nick + " needs some more time.")
         
     
     @command(use_shlex=False)
@@ -83,40 +81,25 @@ class Plugin:
             
             %%ambush [<etc>...]
         """
-        if hasattr(self, 'lock420'):
-            self.sendMessage(mask.nick, """https://youtu.be/JjcD2my2bzQ?t=22""")
-            return
-            
-        if self.smoking(channel):
-            if self.in_cooldown(channel):
+        if channel in self.circles:
+            if self.circles[channel].over:
                 self.sendMessage(channel, "Last round was less than two minutes ago, go ahead and hit it!")
                 return
             else:
-                if mask.nick not in self.smokers[channel]:
-                    self.smokers[channel].append(mask.nick)
-                self.sendMessage(channel, mask.nick + " started the countdown early, grab your piece!")
+                self.circles[channel].current_timer.cancel()
+                if not self.circles[channel].is_in(mask.nick):
+                    self.circles[channel].add_smoker(mask.nick)
+                self.circles[channel].reply(mask.nick + " started the countdown early, grab your piece!")
         else:
-            self.smokers[channel] = [mask.nick]
-            self.wait[channel] = 0
+            self.circles[channel] = Circle(self.bot, channel, mask.nick)
             self.sendMessage(channel, mask.nick + " is ambushing the channel! Does that piece have a hit left?")
         
         self.countdown(channel)
 
 
     def countdown(self, channel):
-        if (self.in_cooldown(channel)):
-            return
-        
-        # Do the countdown
-        time.sleep(1)
-        self.sendMessage(channel, "2..")
-        time.sleep(1)
-        self.sendMessage(channel, "1..")
-        time.sleep(1)
-        self.sendMessage(channel, "Fire in the bowl!")
-    
-        self.wait[channel] = 3
-        self.current[channel] = self.bot.loop.call_later(120, self.reset, channel)
+        self.circles[channel].countdown()
+        self.circles[channel].current_timer = self.bot.loop.call_later(120, self.reset, channel)
 
     @command
     def whosin(self, mask, channel, args):
@@ -125,15 +108,13 @@ class Plugin:
             %%whosin
         """
         reply = "Nobody yet, what about you?"
-        if self.smoking(channel):
-            reply = "The round was started by " + self.smokers[channel][0] + "."
-            if len(self.smokers[channel]) == 2:
-                reply += " Also smoking is " + self.smokers[channel][1] + "."
-            if len(self.smokers[channel]) > 2:
-                reply += " Also smoking are "
-                reply += ', '.join(self.smokers[channel][1:-1])
-                reply += ', and '
-                reply += self.smokers[channel][-1] +"."
+        if channel in self.circles:
+            smokers = self.circles[channels].smokers
+            reply = "The round was started by " + smokers[0] + "."
+            if len(smokers) == 2:
+                reply += " Also smoking is " + smokers[1] + "."
+            if len(smokers) > 2:
+                reply += " Also smoking are " + ', '.join(smokers[1:-1]) + ', and ' + smokers[-1] +"."
         self.sendMessage(channel, reply)
 
     @command(aliases=['i'],use_shlex=False)
@@ -142,48 +123,42 @@ class Plugin:
             
             %%imin [<optional>...]
         """
-        if (self.smoking(channel)):
-            if self.in_cooldown(channel):
+        if channel in self.circles:
+            if self.circles[channel].over:
                 self.sendMessage(channel, "Last round was less than two minutes ago, go ahead and hit it!")
                 return
-            if mask.nick in self.smokers[channel]:
+                
+            if self.circles[channel].is_in(mask.nick):
                 self.sendMessage(channel, "You are already in!")
             else:
-                self.smokers[channel].append(mask.nick)
-                self.sendMessage(channel, mask.nick + " is in!")
+                self.circles[channel].add_smoker(mask.nick)
+                self.circles[channel].reply(mask.nick + " is in!")
         else:
             # Round has not begun, start it
             self.getin(mask, channel, args)
 
 
     def warn10Second(self, channel):
-        if self.smoking(channel):
-            if self.in_cooldown(channel):
-                return
-            
-            if self.wait[channel] == 1:
-                self.wait[channel] = 2
+        if channel in self.circles:
+            if self.circles[channel].wait and not self.circles[channel].waited:
+                self.circles[channel].waited = True
                 self.current[channel] = self.bot.loop.call_later(150, self.warn20Second, channel)
                 return
     
             # Warn the channel
-            self.sendMessage(channel, "Ten seconds, grab your lighter.")
-        
-            self.wait[channel] = 2
-            self.current[channel] = self.bot.loop.call_later(7, self.countdown, channel)
+            self.circles[channel].reply("Ten seconds, grab your lighter.")
+            self.circles[channel].waited = True
+            self.circles[channel].current_timer = self.bot.loop.call_later(7, self.countdown, channel)
 
     def warn20Second(self, channel):
-        if self.smoking(channel):
-            if self.in_cooldown(channel):
+        if channel in self.circles:
+            if self.circles[channel].wait and not self.circles[channel].waited:
+                self.circles[channel].waited = True
+                self.circles[channel].current_timer = self.bot.loop.call_later(160, self.warn20Second, channel)
                 return
             
-            if self.wait[channel] == 1:
-                self.wait[channel] = 2
-                self.current[channel] = self.bot.loop.call_later(160, self.warn20Second, channel)
-                return
-            self.sendMessage(channel, "Twenty seconds, is that bowl packed yet?");
-    
-            self.current[channel] = self.bot.loop.call_later(10, self.warn10Second, channel)
+            self.circles[channel].reply("Twenty seconds, is that bowl packed yet?");
+            self.circles[channel].current_timer = self.bot.loop.call_later(10, self.warn10Second, channel)
 
 
     @command
@@ -191,27 +166,17 @@ class Plugin:
         """Start a round. 
             
             %%getin
-        """# Is the round already started?
-        if hasattr(self, 'lock420') and mask.nick != self.bot.nick:
-            self.sendMessage(mask.nick, """https://youtu.be/XBMxskyDk9o""")
-            return
-        if (self.smoking(channel)):
-            if self.in_cooldown(channel):
-                self.sendMessage(channel, "Last round was less than two minutes ago, go ahead and hit it!")
+        """
+        if channel in self.circles:
+            if self.circles[channel].over:
+                self.circles[channel].reply("Last round was less than two minutes ago, go ahead and hit it!")
             else:
-                if mask.nick not in self.smokers[channel]:
+                if not self.circles[channel].is_in(mask.nick):
                     self.imin(mask, channel, args)
             return
-        
-        # Initialize the round information
-        self.smokers[channel] = [mask.nick]
-        self.wait[channel] = 0
-        
-        # Inform the channel the round has begun
-        self.sendMessage(channel, mask.nick + " is ready to burn one, who else is in?")
-    
-        # Start the four minute timer
-        self.current[channel] = self.bot.loop.call_later(4*60, self.warn20Second, channel)
+        self.circles[channel] = Circle(self.bot, channel, mask.nick)
+        self.circles[channel].reply(mask.nick + " is ready to burn one, who else is in?")
+        self.circles[channel].current_timer = self.bot.loop.call_later(4*60, self.warn20Second, channel)
         
     def sendMessage(self, channel, text):
         print('smoke~~~ ' + text)
@@ -283,28 +248,22 @@ class Plugin:
                 for line in lines:
                     self.bot.privmsg(to, line, True)
     
-    @command
-    def test420(self, m,t,a):
-        """jjj
-            %%test420"""
-        self.my420()
-    
     @cron('15 16 * * *')
     def my420(self):
-        self.lock420 = self.announce_to
-        self.current[self.announce_to].cancel()
+        #self.lock420 = self.announce_to
+        #self.current[self.announce_to].cancel()
         self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
         self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
-        if not self.smoking(self.announce_to):
-            if choice(['a','b','c','d']) == 'c':
-                self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
-                self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "Oh yeah, that's me...")
-        else:
-            self.bot.loop.call_later(33, self.bot.privmsg, self.announce_to, "Oh, ok.")
-            self.bot.loop.call_later((4*60)+40, self.warn20Second, self.announce_to)
-            self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "There we go.")
-        self.bot.loop.call_later(40, self.imin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [])
-        self.bot.loop.call_later((5*61)+1, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
+        #if not self.smoking(self.announce_to):
+        #    if choice(['a','b','c','d']) == 'c':
+        #        self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
+        #        self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "Oh yeah, that's me...")
+        #else:
+        #    self.bot.loop.call_later(33, self.bot.privmsg, self.announce_to, "Oh, ok.")
+        #    self.bot.loop.call_later((4*60)+40, self.warn20Second, self.announce_to)
+        #    self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "There we go.")
+        #self.bot.loop.call_later(40, self.imin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [])
+        self.bot.loop.call_later(5*61, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
         
     @cron('*/5 * * * *')
     def check420(self):
