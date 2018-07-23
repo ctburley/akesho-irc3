@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function start {
 	command screenie -j akeshohseka 'irc3 akesho.ini'
 	command pgrep -nf akeshohseka > akesho.pid
@@ -22,7 +24,7 @@ function halt {
 	fi
 }
 
-if [ $1 == '' ]; then
+if [ "$1" == '' ]; then
     echo "./akesho [start,connect,halt,test]"
 else
     $1
