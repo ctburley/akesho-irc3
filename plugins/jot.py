@@ -63,8 +63,9 @@ class Jot:
         for feature in self.features:
             self.features[feature][0] = re.compile('^'+self.controlchar+self.features[feature][0]+'\s*$')
         
-        self.jotfile_upgrade()
         self.jot = Jots(self.jotfile)
+        
+        self.jotfile_upgrade()
         
         if os.path.isfile(self.jotfile+'.tr'):
             self.training = True
@@ -213,11 +214,11 @@ class Jot:
                     else:
                         del self.jot.data[target][key]
                         if not self.training:
-                            self.bot.privmsg(channel, "Only one response value, '{}' removed from {} storage.".format(key))
+                            self.bot.privmsg(channel, "Only one response value, '{}' removed from {} storage.".format(key, target))
                 else:
                     del self.jot.data[target][key]
                     if not self.training:
-                        self.bot.privmsg(channel, "'{}' removed from {} storage.".format(key))
+                        self.bot.privmsg(channel, "'{}' removed from {} storage.".format(key, target))
                     
     @cron('*/5 * * * *')
     def auto_save(self):
@@ -233,14 +234,15 @@ class Jot:
     def jotfile_upgrade(self):
         channels =  shelve.open(self.jotfile)
         if 'version' not in channels['']:
+            newdata = {}
             print("UPGRADING JOTFILE")
             for channel in channels:
-                print(channel if channel != '' else "Global")
+                
                 for jot in channels[channel]:
-                    print(jot)
                     if 'literal' not in channels[channel][jot]:
-                        print("upgraded")
-                        channels[channel][jot]['literal'] = False
+                        newdata = channels[channel][jot]
+                        a['literal'] = False
+                        channels
             channels['']['version'] = {'literal': False, 'key':'version', 'from':'bot', 'value':['0.0.1']}
         channels.close()
     
