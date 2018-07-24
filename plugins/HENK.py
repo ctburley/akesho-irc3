@@ -353,3 +353,38 @@ class Henk:
         self.dek_send(target, f + s)
 
 
+"""    cursor.execute("SELECT * from tutorials")
+    rows = cursor.fetchall()
+    print(rows)
+
+class DekRecord:
+    def __init__(self, name, channel, frens, bengs, fastest, slowest):
+        self.name = name
+        self.channel = channel
+        self.frens = frens
+        self.bengs = bengs
+        self.fastest = fastest
+        self.slowest = slowest
+
+class DekData:
+    def __init__(self):
+        connection_args = "dbname='bakeshop' user='bakeshop' host='localhost' password='bakeshop'"
+        self.connection = psycopg2.connect(connection_args)
+        self.table = 'henk'
+    
+    def __install__(self):
+        cur = self.get_cursor()
+        
+    
+    def get_record(self, nick, channel):
+        cur = self.get_cursor()
+        cur.execute("SELECT * from %s WHERE name=%s and channel=%s;", (self.table, nick, channel))
+        record = cur.fetchall()
+        if len(record) > 0
+            
+    
+    def set_record(self, nick, channel, record):
+        
+    
+    def get_cursor(self):
+        return self.connection.cursor()"""
