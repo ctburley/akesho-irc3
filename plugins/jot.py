@@ -232,10 +232,12 @@ class Jot:
     # ** Upgrade jotfile if needed
     def jotfile_upgrade(self):
         with shelve.open(self.jotfile) as channels:
-            if 'g#l#o#b#a#l' in channels:
-                beep = channels['g#l#o#b#a#l']
-                del channels['g#l#o#b#a#l']
-                channels[''] = beep
+            if 'version' not in channels:
+                for channel in channels:
+                    for jot in channels[channel]:
+                        if 'literal' not in channels[channel][jot]:
+                            channels[channel][jot]['literal'] = False
+                channels['version'] = '0.0.1'
     
     # ---  Core
         
