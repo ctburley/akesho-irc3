@@ -241,7 +241,7 @@ class Jot:
                         if 'literal' not in channels[channel][jot]:
                             print("upgraded")
                             channels[channel][jot]['literal'] = False
-                channels['']['version'] = {'literal': True if literal else False, 'key':key, 'from':nick, 'value':['0.0.1']}
+                channels['']['version'] = {'literal': False, 'key':'version', 'from':'bot', 'value':['0.0.1']}
     
     # ---  Core
         
