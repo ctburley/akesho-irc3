@@ -231,7 +231,7 @@ class Jot:
 
     # ** Upgrade jotfile if needed
     def jotfile_upgrade(self):
-        channels =  shelve.open(self.jotfile):
+        channels =  shelve.open(self.jotfile)
         if 'version' not in channels['']:
             print("UPGRADING JOTFILE")
             for channel in channels:
