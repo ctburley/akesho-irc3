@@ -232,12 +232,16 @@ class Jot:
     # ** Upgrade jotfile if needed
     def jotfile_upgrade(self):
         with shelve.open(self.jotfile) as channels:
-            if 'version' not in channels:
+            if 'version' not in channels['']:
+                print("UPGRADING JOTFILE")
                 for channel in channels:
+                    print(channel if channel != '' else "Global")
                     for jot in channels[channel]:
+                        print(jot)
                         if 'literal' not in channels[channel][jot]:
+                            print("upgraded")
                             channels[channel][jot]['literal'] = False
-                channels['version'] = '0.0.1'
+                channels['']['version'] = {'literal': True if literal else False, 'key':key, 'from':nick, 'value':['0.0.1']}
     
     # ---  Core
         
