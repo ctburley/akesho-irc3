@@ -65,8 +65,6 @@ class Jot:
         
         self.jot = Jots(self.jotfile)
         
-        self.jotfile_upgrade()
-        
         if os.path.isfile(self.jotfile+'.tr'):
             self.training = True
             self.jot_train()
@@ -96,9 +94,9 @@ class Jot:
         result = self.jot.add(key, target, {'literal': True if literal else False, 'key':key, 'from':nick, 'value':[data]})
         if not self.training:
             if result:
-                self.bot.privmsg(channel, "'{}' added to {} storage.".format(key, 'global' if globl else target))
+                return "'{}' added to {} storage.".format(key, 'global' if globl else target)
             else:
-                self.bot.privmsg(channel, "'"+key+"' already exists.")
+                return "'"+key+"' already exists."
     
     def jot_also(self, nick, channel, key, data, globl=None):
         target = '' if globl and nick in list(self.bot.channels[channel].modes['@']) else channel
@@ -107,29 +105,29 @@ class Jot:
             result['value'].append(data)
             self.jot.write(key, target, result)
             if not self.training:
-                self.bot.privmsg(channel, "'{}' added to '{}' in {} storage.".format(data,key,'global' if globl else target))
+                return "'{}' added to '{}' in {} storage.".format(data,key,'global' if globl else target)
         else:
             if not self.training:
-                self.bot.privmsg(channel, "'{}' does not exist yet, perhaps you meant = instead of |=?".format(key))
+                return "'{}' does not exist yet, perhaps you meant = instead of |=?".format(key)
     
     def jot_count(self, nick, channel, key, globl=None):
         target = '' if globl else channel
         if self.jot.exists(key, target):
             result = self.jot.read(key, target)
-            self.bot.privmsg(channel, "Key '{key}' has {count} responses.".format(key=key, count=len(result['value'])))
+            return "Key '{key}' has {count} responses.".format(key=key, count=len(result['value']))
         else:
-            self.bot.privmsg(channel, "Key '{}' does not exist.".format(key))
+            return "Key '{}' does not exist.".format(key)
         
             
     def jot_suppliment(self, nick, target, key, data, rpi=None, globl=None):
-        self.jot_substitute(nick, target, key, None, data, rpi, globl)
+        return self.jot_substitute(nick, target, key, None, data, rpi, globl)
         
     def jot_subtract(self, nick, target, key, data, rpi=None, globl=None):
-        self.jot_substitute(nick, target, key, data, '', rpi, globl)
+        return self.jot_substitute(nick, target, key, data, '', rpi, globl)
         
     def jot_substitute(self, nick, channel, key, needle, data, rpi=None, globl=None):
         if self.training:
-            return
+            return None
         rpi = int(rpi) if rpi else -1
         target = '' if globl and nick in list(self.bot.channels[target].modes['@']) else channel
         jot = self.jot.read(key, target)
@@ -141,22 +139,22 @@ class Jot:
                     else:
                         jot['value'][rpi] += data
                     if not self.training:
-                        self.bot.privmsg(channel, "'{}' has been modified.".format(key))
+                        return "'{}' has been modified.".format(key)
             else:
                 if len(jot['value']) > 1:
-                    self.bot.privmsg(channel, '"'+key+'" has '+str(len(jot['value']))+' responses, please indicate which you intend to modify with decimal notation. (key.0+)')
+                    return '"'+key+'" has '+str(len(jot['value']))+' responses, please indicate which you intend to modify with decimal notation. (key.0+)'
                 else:
                     if needle:
                         jot['value'][0] = jot['value'][0].replace(needle, data)
                     else:
                         jot['value'][0] += data
                     if not self.training:
-                        self.bot.privmsg(channel, "'{}' has been modified.".format(key))
+                        return "'{}' has been modified.".format(key)
             self.jot.write(key, jot, target)
     
     def jot_get(self, nick, target, key, response_index=None, globl=None, at=None):
         if self.training:
-            return
+            return None
         response_index = -1 if response_index is None else int(response_index)
         jot = self.jot.read(key) if (globl or not self.jot.exists(key, target)) else self.jot.read(key, target)
         if jot:
@@ -167,22 +165,20 @@ class Jot:
             else:
                 value = choice(jot['value'])
             if value:
-                self.bot.privmsg(
-                    target,
-                    ('' if jot['literal'] else "{}: ".format(at if at else nick)) + \
+                return ('' if jot['literal'] else "{}: ".format(at if at else nick)) + \
                     value.format(
-                        me=nick,
-                        target=(at if at else 'someone'),
-                        channel=target,
-                        botnick=self.bot.nick,
-                        cc=self.controlchar
+                        **{'me':nick,
+                        'target':(at if at else 'someone'),
+                        'channel':target,
+                        'botnick':self.bot.nick,
+                        'cc':self.controlchar,
+                        self.controlchar:JotHack(self,target,nick)}
                     )
-                )
 
             
     def jot_search(self, nick, channel, key):
         if self.training:
-            return
+            return None
         result = "Results "
         count = 0
         target = channel
@@ -195,7 +191,7 @@ class Jot:
             if key.lower() in k:
                 result = result + " " + self.controlchar + k + " "
                 count+=1
-        self.bot.privmsg(channel, nick + ": " + str(count) + " " + result)
+        return nick + ": " + str(count) + " " + result
     
     def jot_remove(self, nick, target, key, rpi=None, globl=None):
         channel = target
@@ -210,15 +206,15 @@ class Jot:
                         if rpi < len(self.jot.data[target][key]['value']):
                             self.jot.data[target][key]['value'].pop(rpi)
                             if not self.training:
-                                self.bot.privmsg(channel, "Response {} removed from '{}' in {} storage.".format(rpi, key, target))
+                                return "Response {} removed from '{}' in {} storage.".format(rpi, key, target)
                     else:
                         del self.jot.data[target][key]
                         if not self.training:
-                            self.bot.privmsg(channel, "Only one response value, '{}' removed from {} storage.".format(key, target))
+                             return "Only one response value, '{}' removed from {} storage.".format(key, target)
                 else:
                     del self.jot.data[target][key]
                     if not self.training:
-                        self.bot.privmsg(channel, "'{}' removed from {} storage.".format(key, target))
+                        return "'{}' removed from {} storage.".format(key, target)
                     
     @cron('*/5 * * * *')
     def auto_save(self):
@@ -226,25 +222,9 @@ class Jot:
                 
     def jot_force_save(self, nick, target):
         if nick not in list(self.bot.channels[target].modes['@']):
-            return
+            return None
         self.jot.save()
-        self.bot.privmsg(target, 'Jotfile forcibly saved.')
-
-    # ** Upgrade jotfile if needed
-    def jotfile_upgrade(self):
-        channels =  shelve.open(self.jotfile)
-        if 'version' not in channels['']:
-            newdata = {}
-            print("UPGRADING JOTFILE")
-            for channel in channels:
-                
-                for jot in channels[channel]:
-                    if 'literal' not in channels[channel][jot]:
-                        newdata = channels[channel][jot]
-                        a['literal'] = False
-                        channels
-            channels['']['version'] = {'literal': False, 'key':'version', 'from':'bot', 'value':['0.0.1']}
-        channels.close()
+        return 'Jotfile forcibly saved.'
     
     # ---  Core
         
@@ -260,22 +240,38 @@ class Jot:
                         arglist.append(result.group(arg))
                     
                     self.log(name, nick, target, arglist)
-                    func(nick, target, *arglist)
+                    result = func(nick, target, *arglist)
+                    if result:
+                        self.bot.privmsg(target, result)
 
     def log(self, feature, nick, target, args):
         print('JOT:\t' +nick +'@' +target +' ' +feature +' ',args)
     
-    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<o>\S)?(?P<highlvl>(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?)(?P<c>\S)?\s*$')
+    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<o>[\S\W])?(?P<highlvl>(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?)(?P<c>[\S\W])??\s*$')
     def hack_for_treesbot(self, nick, channel, o, highlvl, c, **kw):
         if o in ['[','{','!'] or c in [']','}']:
             self.jot_core(nick, channel, self.controlchar+highlvl)
 
 
 
-
-
-
-
+class JotHack:
+    def __init__(self, _plugin, _channel, _nick):
+        self.controlchar = _plugin.controlchar
+        (self.pattern,self.func,self.args) = _plugin.features['get']
+        self.channel = _channel
+        self.nick = _nick
+        
+    def __getitem__(self, key):
+        result = self.pattern.match(self.controlchar+key)
+        if result:
+            arglist = []
+            for arg in self.args:
+                arglist.append(result.group(arg))
+            result = self.func(self.nick, self.channel, *arglist)
+            if result:
+                return result
+        return "Not Found"
+    
 
 
 
