@@ -172,7 +172,7 @@ class Jot:
                         'channel':target,
                         'botnick':self.bot.nick,
                         'cc':self.controlchar,
-                        self.controlchar:JotHack(self,target,nick)}
+                        self.controlchar:JotCursor(self,target,nick)}
                     )
 
             
@@ -254,7 +254,7 @@ class Jot:
 
 
 
-class JotHack:
+class JotCursor:
     def __init__(self, _plugin, _channel, _nick):
         self.controlchar = _plugin.controlchar
         (self.pattern,self.func,self.args) = _plugin.features['get']
