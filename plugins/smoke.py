@@ -142,7 +142,7 @@ class Plugin:
         if channel in self.circles:
             if self.circles[channel].wait and not self.circles[channel].waited:
                 self.circles[channel].waited = True
-                self.current[channel] = self.bot.loop.call_later(150, self.warn20Second, channel)
+                self.circles[channel].current_timer = self.bot.loop.call_later(150, self.warn20Second, channel)
                 return
     
             # Warn the channel
