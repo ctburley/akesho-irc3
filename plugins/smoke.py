@@ -117,7 +117,7 @@ class Plugin:
                 reply += " Also smoking are " + ', '.join(smokers[1:-1]) + ', and ' + smokers[-1] +"."
         self.sendMessage(channel, reply)
 
-    @command(aliases=['i'],use_shlex=False)
+    @command(aliases=['i','in','im'],use_shlex=False)
     def imin(self, mask, channel, args):
         """Join the round, optional arguments allow you to use the command in the beginning of a sentence.
             
