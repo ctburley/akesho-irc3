@@ -262,7 +262,7 @@ class JotCursor:
         self.nick = _nick
         
     def __getitem__(self, key):
-        result = self.pattern.match(self.controlchar+key)
+        result = self.pattern.match(self.controlchar+str(key))
         if result:
             arglist = []
             for arg in self.args:
