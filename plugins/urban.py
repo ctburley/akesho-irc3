@@ -15,7 +15,7 @@ class UrbanDict:
         """Use urban dictionary to look up words or phrases.
             %%urban <word>..."""
         idx = args['<word>'][-1] if args['<word>'][-1].isdigit() else None
-        udict = self.lookup(" ".join(args['<word>'][0:-1] if idx else " ".join(args['<word>'])))
+        udict = self.lookup(" ".join(args['<word>'][0:-1] if idx else args['<word>']))
         if udict:
             self.bot.privmsg(channel, "{word}: {definition}".format(**{'word': udict[int(idx if idx else 0)]['word'], 'definition': udict[int(idx if idx else 0)]['definition'][:400]}))
     
