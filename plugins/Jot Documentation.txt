@@ -70,17 +70,18 @@ This requires a double command character and the word save:
 
 
 Cheat sheet:
-add:            -key [-g] = value
-recall:         -key [-g]
-tell:           -key @ target
-add literal:    -key [-g] == value
-another value:  -key [-g] |= value
-count:          -#key [-g]
-specific value: -key.0 [-g]
-suppliment:     -key[.0] [-g] +=value
-subtract:       -key[.0] [-g] -=value
-search&replace: -key[.0] [-g] ~search=replace
-search keys:    -?term
-force save:     --save
+ add:            -key [-g] = value
+@remove:         --key
+ recall:         -key [-g]
+ tell:           -key @ target
+ add literal:    -key [-g] == value
+ another value:  -key [-g] |= value
+ count:          -#key [-g]
+ specific value: -key.0 [-g]
+@suppliment:     -key[.0] [-g] +=value
+@subtract:       -key[.0] [-g] -=value
+@search&replace: -key[.0] [-g] ~search=replace
+ search keys:    -?term
+@force save:     --save
 
 
