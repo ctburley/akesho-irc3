@@ -1,0 +1,86 @@
+Akesho's jot module is used to store information for later recall.
+The character currently in use is a dash/hyphen/minux sign '-'.
+To store information use this character, a key for retrieval,
+and the value you wish to store.
+    <you> -key = value
+
+A key can be deleted. Use a minus '-' after the command character.
+Currently Ops (@) only.
+    <@you> --key
+
+To recall information you use the command character and the key.
+    <you> -key
+    <bot> nick: value
+
+This response from the bot can be targeted at another user.
+    <you> -key @ user
+
+A value can be stored to respond without prepending 'nickname: '.
+    <you> -key == value
+    <you> -key
+    <bot> value
+
+Keys are alphanumeric, and may contain spaces. Values may contain anything.
+    <you> -simple keys are easy to remember = Values can be more complex; and, can contain colors, formatting, and URLs.
+
+A Key=>Value pair, henceforth a 'jot', can be saved locally or globally.
+Saving a jot globally allows it to be accessed from all channels. Local
+jots take priority over global, so you will see that jot instead of the
+globally stored one. Only channel operators may currently save global jots.
+    local:
+        <you> -key = value
+    global:
+        <@you> -key -g = value
+
+A jot can have more than one value, and will return one at random. Adding values
+to an existing jot is like adding a jot, but use a pipe character '|' before the equals '='.
+    <you> -key = value1
+    <you> -key |= value2
+    <you> -key |= value3
+    
+You can recall a specific value from such a jot. See how many values it has
+by using '#' after the command character. You can use the index of the value
+you want with a period '.' after the key name like this:
+    <you> -#key
+    <bot> 'key' has 3 values.
+    <you> -key.2
+    <bot> you: value3
+Remember that arrays start at zero!
+
+You can edit jots instead of deleting and re-setting them.
+Currently Ops (@) Only.
+
+To add 'data' to the end of a value:
+    <@you> -key +=data
+To remove 'data' from anywhere within a value:
+    <@you> -key -=data
+To search for 'needle' and replace with 'data':
+    <@you> -key ~needle=data
+
+There is a basic search function to look for keys, use a question mark
+after the command character and your search term.
+    <you> -?hel
+    <bot> -help  -game help  -help cats are eating my eyes
+
+Channel operators who have recently stored information they do not
+wish to lose may force the bot to save sooner than its timed five minute intervals.
+This requires a double command character and the word save:
+    <@you> --save
+
+
+
+Cheat sheet:
+add:            -key [-g] = value
+recall:         -key [-g]
+tell:           -key @ target
+add literal:    -key [-g] == value
+another value:  -key [-g] |= value
+count:          -#key [-g]
+specific value: -key.0 [-g]
+suppliment:     -key[.0] [-g] +=value
+subtract:       -key[.0] [-g] -=value
+search&replace: -key[.0] [-g] ~search=replace
+search keys:    -?term
+force save:     --save
+
+
