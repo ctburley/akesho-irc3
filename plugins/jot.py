@@ -42,6 +42,10 @@ class Jot:
             'get': [ # key[.#] [-g]
                 '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?',
                 self.jot_get, ['key', 'rpi', 'global']],
+             
+            'literal': [ # !key.# -g
+                '!(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?',
+                self.jot_literal, ['key', 'rpi', 'global']],
             
             'tell': [ # key[.#] [-g ]@ target
                 '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)',
@@ -155,16 +159,24 @@ class Jot:
     def jot_get(self, nick, target, key, response_index=None, globl=None, at=None):
         if self.training:
             return None
+        that_was = "That was "+self.controlchar+key+" used by "+nick+"."
         response_index = -1 if response_index is None else int(response_index)
+        that_was += " It was read from {} storage.".format("global" if globl or not self.jot.exists(key,target) else target)
         jot = self.jot.read(key) if (globl or not self.jot.exists(key, target)) else self.jot.read(key, target)
         if jot:
             value = None
             if response_index > -1:
+                that_was += " They asked for response #"+str(response_index)+"."
                 if response_index < len(jot['value']):
                     value = jot['value'][response_index]
             else:
-                value = choice(jot['value'])
+                response_index = choice(range(len(jot['value'])))
+                if len(jot['value']) > 1:
+                    that_was += " They got random response #"+str(response_index)+"."
+                value = jot['value'][response_index]
             if value:
+                if key.lower() != 'what was that':
+                    self.jot.write('what was that', target, {'literal': True, 'key':'what was that', 'from':nick, 'value':[that_was]})
                 return ('' if jot['literal'] else "{}: ".format(at if at else nick)) + \
                     value.format(
                         **{'me':nick,
@@ -172,9 +184,22 @@ class Jot:
                         'channel':target,
                         'botnick':self.bot.nick,
                         'cc':self.controlchar,
-                        self.controlchar:JotCursor(self,target,nick)}
+                        self.controlchar:JotCursor(self,target,nick,(at if at else None))}
                     )
-
+                    
+    def jot_literal(self, nick, target, key, response_index=None, globl=None):
+        if self.training:
+            return None
+        response_index = -1 if response_index is None else int(response_index)
+        jot = self.jot.read(key) if (globl or not self.jot.exists(key, target)) else self.jot.read(key, target)
+        if jot:
+            value = None
+            if response_index > -1:
+                if response_index < len(jot['value']):
+                    return jot['value'][response_index]
+            else:
+                return choice(jot['value'])
+        return None
             
     def jot_search(self, nick, channel, key):
         if self.training:
@@ -256,19 +281,26 @@ class Jot:
 
 
 class JotCursor:
-    def __init__(self, _plugin, _channel, _nick):
+    def __init__(self, _plugin, _channel, _nick, _target):
         self.controlchar = _plugin.controlchar
         (self.pattern,self.func,self.args) = _plugin.features['get']
         self.channel = _channel
         self.nick = _nick
+        self.target = _target
         
     def __getitem__(self, key):
         result = self.pattern.match(self.controlchar+str(key))
         if result:
-            arglist = []
-            for arg in self.args:
-                arglist.append(result.group(arg))
-            result = self.func(self.nick, self.channel, *arglist)
+            arglist = {
+                'nick': self.nick,
+                'target': self.channel,
+                'key': key,
+                'response_index': result.group('rpi'),
+                'globl': result.group('global'),
+            }
+            if self.target:
+                arglist['at'] = self.target
+            result = self.func(**arglist)
             if result:
                 return result
         return "Not Found"
