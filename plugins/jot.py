@@ -133,7 +133,7 @@ class Jot:
         if self.training:
             return None
         rpi = int(rpi) if rpi else -1
-        target = '' if globl and nick in list(self.bot.channels[target].modes['@']) else channel
+        target = '' if globl and nick in list(self.bot.channels[channel].modes['@']) else channel
         jot = self.jot.read(key, target)
         if jot:
             if rpi > -1:
