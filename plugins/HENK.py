@@ -273,7 +273,7 @@ class Henk:
             while idx < 5 and idx < len(s_records):
                 if records[s_records[idx]]['f'] > 0:
                     top[s_records[idx]] = records[s_records[idx]]['f']
-                    idx += 1
+                idx += 1
         response = ":: best friendos :: "
         topnames = sorted(top, key=lambda x: top[x], reverse=True)
         for names in topnames:
@@ -298,7 +298,7 @@ class Henk:
             while idx < 5 and idx < len(s_records):
                 if records[s_records[idx]]['b'] > 0:
                     top[s_records[idx]] = records[s_records[idx]]['b']
-                    idx += 1
+                idx += 1
         response = ":: dem bangerinos :: "
         topnames = sorted(top, key=lambda x: top[x], reverse=True)
         for names in topnames:
