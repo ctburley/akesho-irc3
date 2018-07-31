@@ -157,6 +157,7 @@ class Jot:
             self.jot.write(key, jot, target)
     
     def jot_get(self, nick, target, key, response_index=None, globl=None, at=None):
+        print(key)
         if self.training:
             return None
         that_was = "That was "+self.controlchar+key+" used by "+nick+"."
@@ -272,11 +273,23 @@ class Jot:
     def log(self, feature, nick, target, args):
         print('JOT:\t' +nick +'@' +target +' ' +feature +' ',args)
     
-    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<o>[\W\S])??(?P<highlvl>[\w\s]+?(?:\.\d+)?)(?P<c>[\W\S])??\s*$')
-    def hack_for_treesbot(self, nick, channel, o, highlvl, c, **kw):
-        if o in ['[','{','!'] or c in [']','}']:
-            if self.jot.exists(highlvl, channel):
-                self.jot_core(nick, channel, self.controlchar+highlvl)
+    @irc3.event(r'^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<data>.*?)\s*$')
+    def hack_for_treesbot(self, nick, channel, data, **kw):
+        do = None
+        (o,key,c) = (data[0],data[1:-1],data[-1])
+        if o == '!':
+            do = key + c
+        if o in ['[','{']:
+            if c in [']','}']:
+                do = key
+            else:
+                do = key + c
+        else:
+            if c in [']','}']:
+                do = o+key
+        
+        if do and self.jot.exists(do.split('.')[0] if '.' in do else do, channel):
+            self.jot_core(nick, channel, self.controlchar+do)
 
 
 
@@ -294,7 +307,7 @@ class JotCursor:
             arglist = {
                 'nick': self.nick,
                 'target': self.channel,
-                'key': key,
+                'key': result.group('key'),
                 'response_index': result.group('rpi'),
                 'globl': result.group('global'),
             }
