@@ -157,7 +157,6 @@ class Jot:
             self.jot.write(key, jot, target)
     
     def jot_get(self, nick, target, key, response_index=None, globl=None, at=None, embed=False):
-        print(key)
         if self.training:
             return None
         that_was = "That was "+self.controlchar+key+" used by "+nick+"."
