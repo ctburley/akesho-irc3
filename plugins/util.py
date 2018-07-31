@@ -78,9 +78,9 @@ class mode_based_policy:
         self.log = logging.getLogger(__name__)
         self.has_permission={
             'user':    lambda mask,t: True,
-            'voice':   lambda mask,t: mask.nick in list(self.context.channels[t].modes['+']) or self.levels['hop'](mask,t),
-            'hop':     lambda mask,t: mask.nick in list(self.context.channels[t].modes['%']) or self.levels['admin'](mask,t),
-            'admin':   lambda mask,t: mask.nick in list(self.context.channels[t].modes['@']) or self.levels['owner'](mask,t),
+            'voice':   lambda mask,t: mask.nick in list(self.context.channels[t].modes['+']) or self.has_permission['hop'](mask,t),
+            'hop':     lambda mask,t: mask.nick in list(self.context.channels[t].modes['%']) or self.has_permission['admin'](mask,t),
+            'admin':   lambda mask,t: mask.nick in list(self.context.channels[t].modes['@']) or self.has_permission['owner'](mask,t),
             'owner':   lambda mask,t: fnmatch.fnmatch(mask, '*@user/ctburley') or mask.nick in list(self.context.channels[t].modes['!'])
         }
         

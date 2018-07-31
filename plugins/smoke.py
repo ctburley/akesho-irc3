@@ -109,7 +109,7 @@ class Plugin:
         """
         reply = "Nobody yet, what about you?"
         if channel in self.circles:
-            smokers = self.circles[channels].smokers
+            smokers = self.circles[channel].smokers
             reply = "The round was started by " + smokers[0] + "."
             if len(smokers) == 2:
                 reply += " Also smoking is " + smokers[1] + "."

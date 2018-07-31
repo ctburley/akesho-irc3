@@ -289,8 +289,7 @@ class Jot:
         else:
             if c in [']','}']:
                 do = o+key
-        
-        if do and self.jot.exists(do.split('.')[0] if '.' in do else do, channel):
+        if do:
             self.jot_core(nick, channel, self.controlchar+do)
 
 
