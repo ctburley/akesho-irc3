@@ -156,7 +156,7 @@ class Jot:
                         return "'{}' has been modified.".format(key)
             self.jot.write(key, jot, target)
     
-    def jot_get(self, nick, target, key, response_index=None, globl=None, at=None):
+    def jot_get(self, nick, target, key, response_index=None, globl=None, at=None, embed=False):
         print(key)
         if self.training:
             return None
@@ -176,7 +176,7 @@ class Jot:
                     that_was += " They got random response #"+str(response_index)+"."
                 value = jot['value'][response_index]
             if value:
-                if key.lower() != 'what was that':
+                if key.lower() != 'what was that' and not embed:
                     self.jot.write('what was that', target, {'literal': True, 'key':'what was that', 'from':nick, 'value':[that_was]})
                 return ('' if jot['literal'] else "{}: ".format(at if at else nick)) + \
                     value.format(
@@ -310,6 +310,7 @@ class JotCursor:
                 'key': result.group('key'),
                 'response_index': result.group('rpi'),
                 'globl': result.group('global'),
+                'embed': True
             }
             if self.target:
                 arglist['at'] = self.target
