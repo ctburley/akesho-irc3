@@ -47,15 +47,64 @@ you want with a period '.' after the key name like this:
     <bot> you: value3
 Remember that arrays start at zero!
 
+To see information about the last jot recalled, simply use 'what was that':
+    <you> -tea
+    <bot> roobos tea
+    <you> -what was that
+    <bot> That was -tea used by you. It was read from global storage. They got random response #5.
+
 You can edit jots instead of deleting and re-setting them.
 Currently Ops (@) Only.
 
 To add 'data' to the end of a value:
     <@you> -key +=data
+    
 To remove 'data' from anywhere within a value:
     <@you> -key -=data
+    
 To search for 'needle' and replace with 'data':
     <@you> -key ~needle=data
+    
+
+Jots can contain straings which will be replaced by certain text.
+    {text}      replacement
+    ------      -----------
+    {me}        The nick of the user who recalls the jot.
+    {target}    'someone' if the nick is not targeted using @, the text after @ otherwise.
+    {channel}   The current channel.
+    {botnick}   The nick of the bot.
+    {cc}        The character that jot uses as a command character.
+
+There is also a special replacement string which will allow you to insert jots, local and global, into other jots.
+    syntax: command character followed by square brackets, inside which is the key and, if needed, global indicator.
+        Example: {-[key -g]}
+    
+Full Example:
+    <you> -_help -g == Hello {target}! Welcome to {channel}, I am {botnick} and my commands start with {cc}. This command was set off by {me}.
+    <bot> '_help' added to global storage.
+    
+    <you> -help -g == {-[_help.0 -g]}
+    <bot> 'help' added to global storage.
+    
+    <you> -help
+    <bot> Hello someone! Welcome to #channel, I am bot and my commands start with -. This command was set off by you.
+    
+    <you> -_help -g |= {cc}game help {cc}ask {cc}tab {cc}symbols
+    <bot> '{cc}game help {cc}ask {cc}tab {cc}symbols' added as '_help.1' in global storage.
+    
+    <you> -_help -g += Check out: {-[_help.1 -g]}
+    <bot> '_help' has been modified.
+    
+    <you> -help @ nickname
+    <bot> Hello nickname! Welcome to #channel, I am bot and my commands start with -. This command was set off by you. Check out: --game help -ask -tab -symbols
+
+These strings can be viewed without interpretation by including an exclamation point before the key.
+    <you> -!help
+    <bot> {-[_help.0 -g]}
+    
+    <you> -!_help
+    <bot> Hello {target}! Welcome to {channel}, I am {botnick} and my commands start with {cc}. This command was set off by {me}. Check out: {-[_help.1 -g]}
+
 
 There is a basic search function to look for keys, use a question mark
 after the command character and your search term.
@@ -82,6 +131,8 @@ Cheat sheet:
 @subtract:       -key[.0] [-g] -=value
 @search&replace: -key[.0] [-g] ~search=replace
  search keys:    -?term
+ last recalled:  -what was that
+ view literally: -!key
 @force save:     --save
 
 

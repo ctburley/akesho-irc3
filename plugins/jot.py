@@ -109,7 +109,7 @@ class Jot:
             result['value'].append(data)
             self.jot.write(key, target, result)
             if not self.training:
-                return "'{}' added to '{}' in {} storage.".format(data,key,'global' if globl else target)
+                return "'{}' added as '{}.{}' in {} storage.".format(data,key,len(result['value'])-1,'global' if globl else target)
         else:
             if not self.training:
                 return "'{}' does not exist yet, perhaps you meant = instead of |=?".format(key)
@@ -190,15 +190,18 @@ class Jot:
     def jot_literal(self, nick, target, key, response_index=None, globl=None):
         if self.training:
             return None
-        response_index = -1 if response_index is None else int(response_index)
         jot = self.jot.read(key) if (globl or not self.jot.exists(key, target)) else self.jot.read(key, target)
         if jot:
-            value = None
-            if response_index > -1:
+            if response_index:
+                response_index = int(response_index)
                 if response_index < len(jot['value']):
                     return jot['value'][response_index]
+                else:
+                    return "'{}' only has {} values.".format(key,len(jot['values']))
             else:
-                return choice(jot['value'])
+                if len(jot['value']) > 1:
+                    return "'{}' has {} responses to choose from, which one would you like to see?".format(key,len(jot['value']))
+                return jot['value']
         return None
             
     def jot_search(self, nick, channel, key):
