@@ -9,6 +9,7 @@ from irc3.plugins.command import command
 class UrbanDict:
     def __init__(self, _bot):
         self.bot = _bot
+        print('urban dict loaded')
         
     @command(aliases=['u','ud'])
     def urban(self, mask, channel, args):
