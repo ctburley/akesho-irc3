@@ -234,15 +234,15 @@ class Jot:
                         if rpi < len(self.jot.data[target][key]['value']):
                             self.jot.data[target][key]['value'].pop(rpi)
                             if not self.training:
-                                return "Response {} removed from '{}' in {} storage.".format(rpi, key, target)
+                                return "Response {} removed from '{}' in {} storage.".format(rpi, key, 'global' if target == '' else target)
                     else:
                         del self.jot.data[target][key]
                         if not self.training:
-                             return "Only one response value, '{}' removed from {} storage.".format(key, target)
+                             return "Only one response value, '{}' removed from {} storage.".format(key, 'global' if target == '' else target)
                 else:
                     del self.jot.data[target][key]
                     if not self.training:
-                        return "'{}' removed from {} storage.".format(key, target)
+                        return "'{}' removed from {} storage.".format(key, 'global' if target == '' else target)
                     
     @cron('*/5 * * * *')
     def auto_save(self):
