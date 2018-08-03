@@ -28,6 +28,7 @@ class WeatherIRC3:
                 )
                 
                 data = {
+                    'nick': mask.nick,
                     'location': location['formatted_address'],
                     'ftemp': fio.currently['temperature'],
                     'ctemp': self.toc(fio.currently['temperature']),
@@ -42,7 +43,7 @@ class WeatherIRC3:
                     'csummary': fio.currently['summary'].lower(),
                     'hsummary': fio.hourly['summary'].lower(),
                 }
-                output="Today has a high of {fhigh:.0f}F/{chigh:.0f}C and low of {flow:.0f}F/{clow:.0f}C. It is currently {csummary}, {ftemp:.0f}F/{ctemp:.0f}C with {humidity:.0%} humidity, and the wind is {mwind:.0f}MPH/{kwind:.0f}KPH {wbearing}. Later, {hsummary} - {location} - https://darksky.net/poweredby/"
+                output="{nick}: Today has a high of {fhigh:.0f}F/{chigh:.0f}C and low of {flow:.0f}F/{clow:.0f}C. It is currently {csummary}, {ftemp:.0f}F/{ctemp:.0f}C with {humidity:.0%} humidity, and the wind is {mwind:.0f}MPH/{kwind:.0f}KPH {wbearing}. Later, {hsummary} - {location} - https://darksky.net/poweredby/"
                 self.bot.privmsg(channel, output.format(**data))
                 pstore[mask.lnick] = where
             else:
