@@ -201,7 +201,7 @@ class Jot:
             else:
                 if len(jot['value']) > 1:
                     return "'{}' has {} responses to choose from, which one would you like to see?".format(key,len(jot['value']))
-                return jot['value']
+                return jot['value'][0]
         return None
             
     def jot_search(self, nick, channel, key):
