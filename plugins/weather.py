@@ -38,9 +38,11 @@ class WeatherIRC3:
                     'fhigh': fio.daily['data'][0]['temperatureHigh'],
                     'flow': fio.daily['data'][0]['temperatureLow'],
                     'chigh': self.toc(fio.daily['data'][0]['temperatureHigh']),
-                    'clow': self.toc(fio.daily['data'][0]['temperatureLow'])
+                    'clow': self.toc(fio.daily['data'][0]['temperatureLow']),
+                    'csummary': fio.currently['summary'].lower(),
+                    'hsummary': fio.hourly['summary'].lower(),
                 }
-                output="[{location} - {ftemp:.0f}F/{ctemp:.0f}C {humidity:.0%} {mwind:.0f}MPH/{kwind:.0f}KPH {wbearing}, High: {fhigh:.0f}F/{chigh:.0f}C, Low: {flow:.0f}F/{clow:.0f}C] https://darksky.net/poweredby/"
+                output="Today has a high of {fhigh:.0f}F/{chigh:.0f}C and low of {flow:.0f}F/{clow:.0f}C. It is currently {csummary}, {ftemp:.0f}F/{ctemp:.0f}C with {humidity:.0%} humidity, and the wind is {mwind:.0f}MPH/{kwind:.0f}KPH {wbearing}. Later, {hsummary} - {location} - https://darksky.net/poweredby/"
                 self.bot.privmsg(channel, output.format(**data))
                 pstore[mask.lnick] = where
             else:
