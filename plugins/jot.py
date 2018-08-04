@@ -16,48 +16,48 @@ class Jot:
             #    '(?P<key>[\w\s]+?)(?P<global>\s*-g)?',
             #    self., ['key', 'global']]
             'add': [ # key [-g ]= value
-                '(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*=(?P<literal>=)?\s*(?P<data>.*)',
-                self.jot_add, ['key', 'data', 'literal', 'global']],
+                '(?P<key>[\w\s]+?)(?P<globl>\s*-g)?\s*=(?P<literal>=)?\s*(?P<data>.*)',
+                self.jot_add, ['key', 'data', 'literal', 'globl']],
             
             'also': [ # key [-g ]|= value
-                '(?P<key>[\w\s]+?)(?P<global>\s*-g)?\s*\|=\s*(?P<data>.*)',
-                self.jot_also, ['key', 'data', 'global']],
+                '(?P<key>[\w\s]+?)(?P<globl>\s*-g)?\s*\|=\s*(?P<data>.*)',
+                self.jot_also, ['key', 'data', 'globl']],
             
             'count': [ #   -#key
-                '#(?P<key>[\w\s]+?)(?P<global>\s*-g)?',
-                self.jot_count, ['key', 'global']],
+                '#(?P<key>[\w\s]+?)(?P<globl>\s*-g)?',
+                self.jot_count, ['key', 'globl']],
             
             'suppliment': [ # key[.#] [-g ]+= data
-                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*\+=(?P<data>.*)',
-                self.jot_suppliment, ['key', 'data', 'rpi', 'global']],
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?\s*\+=(?P<data>.*)',
+                self.jot_suppliment, ['key', 'data', 'rpi', 'globl']],
             
             'subtract': [ # key[.#] [-g ]-= needle
-                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*\-=(?P<data>.*)',
-                self.jot_subtract, ['key', 'data', 'rpi', 'global']],
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?\s*\-=(?P<data>.*)',
+                self.jot_subtract, ['key', 'data', 'rpi', 'globl']],
             
             'substitute':  [ # key[.#] [-g] ~needle=data
-                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*\~(?P<needle>.*)(?<!\\\\)=(?P<data>.*)',
-                self.jot_substitute, ['key', 'needle', 'data', 'rpi', 'global']],
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?\s*\~(?P<needle>.*)(?<!\\\\)=(?P<data>.*)',
+                self.jot_substitute, ['key', 'needle', 'data', 'rpi', 'globl']],
             
-            'get': [ # key[.#] [-g]
-                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?',
-                self.jot_get, ['key', 'rpi', 'global']],
+            'get': [ # key[.#] [-g] [| chain]
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?(?P<chain>\s*(?:\|\s*\S+\s*)+)?',
+                self.jot_get, ['key', 'rpi', 'globl','chain']],
              
             'literal': [ # !key.# -g
-                '!(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?',
-                self.jot_literal, ['key', 'rpi', 'global']],
+                '!(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?',
+                self.jot_literal, ['key', 'rpi', 'globl']],
             
             'tell': [ # key[.#] [-g ]@ target
-                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?\s*@\s*(?P<at>\S+)',
-                self.jot_get, ['key', 'rpi', 'global', 'at']],
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?\s*@\s*(?P<at>\S+)',
+                self.jot_get, ['key', 'rpi', 'globl', 'at']],
             
             'search': [ # ?key
                 '\?(?P<key>[\w\s]+?)',
                 self.jot_search, ['key']],
             
             'remove': [ # -key[.#] [-g]
-                '-(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<global>\s*-g)?',
-                self.jot_remove, ['key', 'rpi', 'global']],
+                '-(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?',
+                self.jot_remove, ['key', 'rpi', 'globl']],
             
             'save': [ # double command character save + nick is opped in channel
                 self.controlchar+'save', self.jot_force_save, []],
@@ -156,28 +156,28 @@ class Jot:
                         return "'{}' has been modified.".format(key)
             self.jot.write(key, jot, target)
     
-    def jot_get(self, nick, target, key, response_index=None, globl=None, at=None, embed=False):
+    def jot_get(self, nick, target, key, rpi=None, globl=None, at=None, chain=None, embed=False):
         if self.training:
             return None
         that_was = "That was "+self.controlchar+key+" used by "+nick+"."
-        response_index = -1 if response_index is None else int(response_index)
+        rpi = -1 if rpi is None else int(rpi)
         that_was += " It was read from {} storage.".format("global" if globl or not self.jot.exists(key,target) else target)
         jot = self.jot.read(key) if (globl or not self.jot.exists(key, target)) else self.jot.read(key, target)
         if jot:
             value = None
-            if response_index > -1:
-                that_was += " They asked for response #"+str(response_index)+"."
-                if response_index < len(jot['value']):
-                    value = jot['value'][response_index]
+            if rpi > -1:
+                that_was += " They asked for response #"+str(rpi)+"."
+                if rpi < len(jot['value']):
+                    value = jot['value'][rpi]
             else:
-                response_index = choice(range(len(jot['value'])))
+                rpi = choice(range(len(jot['value'])))
                 if len(jot['value']) > 1:
-                    that_was += " They got random response #"+str(response_index)+"."
-                value = jot['value'][response_index]
+                    that_was += " They got random response #"+str(rpi)+"."
+                value = jot['value'][rpi]
             if value:
                 if key.lower() != 'what was that' and not embed:
                     self.jot.write('what was that', target, {'literal': True, 'key':'what was that', 'from':nick, 'value':[that_was]})
-                return ('' if jot['literal'] else "{}: ".format(at if at else nick)) + \
+                to_chain = (('' if jot['literal'] else "{}: ".format(at if at else nick)) + \
                     value.format(
                         **{'me':nick,
                         'target':(at if at else 'someone'),
@@ -185,17 +185,29 @@ class Jot:
                         'botnick':self.bot.nick,
                         'cc':self.controlchar,
                         self.controlchar:JotCursor(self,target,nick,(at if at else None))}
-                    )
+                    ))
+                if chain:
+                    chain = chain.split('|')[1:]
+                    if len(chain) > 1:
+                        chain = chain[0] +" "+ to_chain + "|" + "|".join(chain[1:])
+                    else:
+                        chain = chain[0] +" "+ to_chain
+                    return self.bot.chain(chain)
+                else:
+                    return to_chain
+        else:
+            return None
                     
-    def jot_literal(self, nick, target, key, response_index=None, globl=None):
+    def jot_literal(self, nick, target, key, rpi=None, globl=None):
         if self.training:
             return None
+        rpi
         jot = self.jot.read(key) if (globl or not self.jot.exists(key, target)) else self.jot.read(key, target)
         if jot:
-            if response_index:
-                response_index = int(response_index)
-                if response_index < len(jot['value']):
-                    return jot['value'][response_index]
+            if rpi:
+                rpi = int(rpi)
+                if rpi < len(jot['value']):
+                    return jot['value'][rpi]
                 else:
                     return "'{}' only has {} values.".format(key,len(jot['values']))
             else:
@@ -263,17 +275,17 @@ class Jot:
                 (pattern, func, args) = self.features[name]
                 result = pattern.match(data)
                 if result:
-                    arglist = []
+                    arglist = {'nick': nick, 'target': target}
                     for arg in args:
-                        arglist.append(result.group(arg))
+                        arglist[arg] = result.group(arg)
                     
-                    self.log(name, nick, target, arglist)
-                    result = func(nick, target, *arglist)
+                    self.log(name, arglist)
+                    result = func(**arglist)
                     if result:
                         self.bot.privmsg(target, result)
 
-    def log(self, feature, nick, target, args):
-        print('JOT:\t' +nick +'@' +target +' ' +feature +' ',args)
+    def log(self, feature, a):
+        print('JOT:\t' + feature + str(a))
     
     @irc3.event(r'^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<data>.*?)\s*$')
     def hack_for_treesbot(self, nick, channel, data, **kw):
@@ -309,7 +321,7 @@ class JotCursor:
                 'nick': self.nick,
                 'target': self.channel,
                 'key': result.group('key'),
-                'response_index': result.group('rpi'),
+                'rpi': result.group('rpi'),
                 'globl': result.group('global'),
                 'embed': True
             }

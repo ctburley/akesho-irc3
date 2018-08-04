@@ -92,9 +92,13 @@ class StringModifier:
     def zalgofy(self, text):
         return self.ZALGO.zalgofy(self.stripformat(text))
     # ---  Core
+    
+    @irc3.extend
+    def chain(self, data):
+        return self._core(None, None, data, True)
         
     @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<target>\S+) :!(?P<datas>.*)$')
-    def _core(self, nick, target, datas, **kw):
+    def _core(self, nick, target, datas, inline=False, **kw):
         if (self.bot.obeying_commands(target)):
             text = None
             datas = datas.split('|')
@@ -105,8 +109,12 @@ class StringModifier:
                     if result:
                         if text is None and result.group('text') is None:
                             self.bot.privmsg(target, "No text to process!")
-                            return
+                            return "What"
                         text = func(result.group('text') if text is None else text)
-            if text is not None:
-                self.bot.privmsg(target, self.bot.np("  ")[1]+text)
+            if text:
+                if inline:
+                    return text
+                else:
+                    self.bot.privmsg(target, self.bot.np("  ")[1]+text)
+            return text
     
