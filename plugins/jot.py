@@ -40,16 +40,12 @@ class Jot:
                 self.jot_substitute, ['key', 'needle', 'data', 'rpi', 'globl']],
             
             'get': [ # key[.#] [-g] [| chain]
-                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?(?P<chain>\s*(?:\|\s*\S+\s*)+)?',
-                self.jot_get, ['key', 'rpi', 'globl','chain']],
+                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?(?:\s*@\s*(?P<at>\S+))?(?P<chain>\s*(?:\|\s*\S+\s*)+)?',
+                self.jot_get, ['key', 'rpi', 'globl','chain','at']],
              
             'literal': [ # !key.# -g
                 '!(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?',
                 self.jot_literal, ['key', 'rpi', 'globl']],
-            
-            'tell': [ # key[.#] [-g ]@ target
-                '(?P<key>[\w\s]+?)(?:\.(?P<rpi>\d+))?(?P<globl>\s*-g)?\s*@\s*(?P<at>\S+)',
-                self.jot_get, ['key', 'rpi', 'globl', 'at']],
             
             'search': [ # ?key
                 '\?(?P<key>[\w\s]+?)',
