@@ -96,7 +96,7 @@ class StringModifier:
     def _core(self, nick, target, datas, **kw):
         if self.bot.obeying_commands(target) and datas[0] == '!':
             text = None
-            datas = datas[1:].strip().split('|')
+            datas = datas[1:].split('|')
             for data in datas:
                 for name in self.features:
                     (pattern, func) = self.features[name]
