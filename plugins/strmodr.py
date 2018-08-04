@@ -30,11 +30,12 @@ class StringModifier:
             'italicize':    ['ital(?:ic(?:ize)?)?',         self.italicize],
             'underline':    ['under(?:line)?',              self.underline],
             'zalgofy':      ['zalgo(?:i?fy)?',                self.zalgofy],
+            'stringhelp':   ['stringhelp', self.help]
         }
         
         # compile feature regexps
         for feature in self.features:
-            self.features[feature][0] = re.compile('^\s*'+self.features[feature][0]+'\s+(?P<text>.*)\s*$')
+            self.features[feature][0] = re.compile('^\s*'+self.features[feature][0]+'(?:\s+(?P<text>.*))?\s*$')
         
         print("strmodr ~ loaded".translate(self.HALFWIDTH_TO_FULLWIDTH))
        
