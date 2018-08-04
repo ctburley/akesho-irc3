@@ -92,11 +92,11 @@ class StringModifier:
         return self.ZALGO.zalgofy(self.stripformat(text))
     # ---  Core
         
-    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<target>\S+) :(?P<datas>.*)$')
+    @irc3.event('^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<target>\S+) :!(?P<datas>.*)$')
     def _core(self, nick, target, datas, **kw):
-        if self.bot.obeying_commands(target) and datas[0] == '!':
+        if (self.bot.obeying_commands(target)):
             text = None
-            datas = datas[1:].split('|')
+            datas = datas.split('|')
             for data in datas:
                 for name in self.features:
                     (pattern, func) = self.features[name]
