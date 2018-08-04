@@ -322,7 +322,7 @@ class JotCursor:
                 'target': self.channel,
                 'key': result.group('key'),
                 'rpi': result.group('rpi'),
-                'globl': result.group('global'),
+                'globl': result.group('globl'),
                 'embed': True
             }
             if self.target:
