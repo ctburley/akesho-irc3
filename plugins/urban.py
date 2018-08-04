@@ -16,18 +16,29 @@ class UrbanDict:
         """Use urban dictionary to look up words or phrases.
             %%urban [<word>...]"""
         if args['<word>']:
-            idx = args['<word>'][-1] if args['<word>'][-1].isdigit() else None
-            udict = self.lookup(" ".join(args['<word>'][0:-1] if idx else args['<word>']))
+            ix = int(args['<word>'][-1]) if args['<word>'][-1].isdigit() else None
+            udict = self.lookup(" ".join(args['<word>'][0:-1] if ix else args['<word>']))
         else:
-            (idx, udict) = (None, self.random())
+            (ix, udict) = (None, self.lookup())
             
         if udict:
-            idx = idx if idx and idx < len(udict) else None
-            self.bot.privmsg(channel, "{word}: {definition}".format(**{'word': udict[int(idx if idx else 0)]['word'], 'definition': udict[int(idx if idx else 0)]['definition'][:400]}))
+            idx = ix if ix else 0
+            args = {'word': "{}{}: ".format(udict[idx]['word'],(", "+str(idx) if ix else ""))}
+            defi = udict[idx]['definition']
+            if defi.lower().startswith(udict[idx]['word'].lower()+":"):
+                defi = defi[len(udict[idx]['word'])+1:].strip()
+            if (len(defi)+len(args['word'])) > 449:
+                args['definition'] = defi[:445-len(args['word'])] + "[...]"
+            else:
+                args['definition'] = defi
+            self.bot.privmsg(channel, "{word}{definition}".format(**args))
     
-    def random(self):
+    def lookup(self, term=None):
         try:
-            req = urlopen("http://api.urbandictionary.com/v0/random")
+            if term:
+                req = urlopen("http://api.urbandictionary.com/v0/define?"+urlencode({'term': term}))
+            else:
+                req = urlopen("http://api.urbandictionary.com/v0/random")
             return loads(req.read().decode())['list']
         except HTTPError as e:
             return None
@@ -35,13 +46,4 @@ class UrbanDict:
             return None
         return None
         
-    def lookup(self, term):
-        try:
-            req = urlopen("http://api.urbandictionary.com/v0/define?"+urlencode({'term': term}))
-            return loads(req.read().decode())['list']
-        except HTTPError as e:
-            return None
-        except URLError as e:
-            return None
-        return None
-    
+
