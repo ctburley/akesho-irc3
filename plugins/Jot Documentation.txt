@@ -15,6 +15,13 @@ To recall information you use the command character and the key.
 This response from the bot can be targeted at another user.
     <you> -key @ user
 
+The response can also be sent through one or many string modification functions.
+    <you> -key | rainbow
+    <you> -key @ someone | bold | rainbow
+These modifiers are available listed in the jot named 'string help' or 'strmod'.
+    <you> -string help
+    <you> -strmod
+
 A value can be stored to respond without prepending 'nickname: '.
     <you> -key == value
     <you> -key
@@ -123,6 +130,7 @@ Cheat sheet:
 @remove:         --key
  recall:         -key [-g]
  tell:           -key @ target
+ use the chain:  -key [-g] [@ target] | <option>
  add literal:    -key [-g] == value
  another value:  -key [-g] |= value
  count:          -#key [-g]
