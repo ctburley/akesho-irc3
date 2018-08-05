@@ -89,31 +89,31 @@ class Jot:
                 self.jot_core(nick, channel, self.controlchar+line)
     # --- Features
     
-    def jot_add(self, nick, channel, key, data, literal=None, globl=None):
-        target = '' if globl and nick in list(self.bot.channels[channel].modes['@']) else channel
-        result = self.jot.add(key, target, {'literal': True if literal else False, 'key':key, 'from':nick, 'value':[data]})
+    def jot_add(self, nick, target, key, data, literal=None, globl=None):
+        targ = '' if globl and nick in list(self.bot.channels[target].modes['@']) else target
+        result = self.jot.add(key, targ, {'literal': True if literal else False, 'key':key, 'from':nick, 'value':[data]})
         if not self.training:
             if result:
-                return "'{}' added to {} storage.".format(key, 'global' if globl else target)
+                return "'{}' added to {} storage.".format(key, 'global' if globl else targ)
             else:
                 return "'"+key+"' already exists."
     
-    def jot_also(self, nick, channel, key, data, globl=None):
-        target = '' if globl and nick in list(self.bot.channels[channel].modes['@']) else channel
-        if self.jot.exists(key, target):
-            result = self.jot.read(key, target)
+    def jot_also(self, nick, target, key, data, globl=None):
+        targ = '' if globl and nick in list(self.bot.channels[target].modes['@']) else target
+        if self.jot.exists(key, targ):
+            result = self.jot.read(key, targ)
             result['value'].append(data)
-            self.jot.write(key, target, result)
+            self.jot.write(key, targ, result)
             if not self.training:
-                return "'{}' added as '{}.{}' in {} storage.".format(data,key,len(result['value'])-1,'global' if globl else target)
+                return "'{}' added as '{}.{}' in {} storage.".format(data,key,len(result['value'])-1,'global' if globl else targ)
         else:
             if not self.training:
                 return "'{}' does not exist yet, perhaps you meant = instead of |=?".format(key)
     
-    def jot_count(self, nick, channel, key, globl=None):
-        target = '' if globl else channel
-        if self.jot.exists(key, target):
-            result = self.jot.read(key, target)
+    def jot_count(self, nick, target, key, globl=None):
+        targ = '' if globl else target
+        if self.jot.exists(key, targ):
+            result = self.jot.read(key, targ)
             return "Key '{key}' has {count} responses.".format(key=key, count=len(result['value']))
         else:
             return "Key '{}' does not exist.".format(key)
@@ -125,12 +125,12 @@ class Jot:
     def jot_subtract(self, nick, target, key, data, rpi=None, globl=None):
         return self.jot_substitute(nick, target, key, data, '', rpi, globl)
         
-    def jot_substitute(self, nick, channel, key, needle, data, rpi=None, globl=None):
+    def jot_substitute(self, nick, target, key, needle, data, rpi=None, globl=None):
         if self.training:
             return None
         rpi = int(rpi) if rpi else -1
-        target = '' if globl and nick in list(self.bot.channels[channel].modes['@']) else channel
-        jot = self.jot.read(key, target)
+        targ = '' if globl and nick in list(self.bot.channels[target].modes['@']) else target
+        jot = self.jot.read(key, targ)
         if jot:
             if rpi > -1:
                 if rpi < len(jot['value']):
@@ -150,7 +150,7 @@ class Jot:
                         jot['value'][0] += data
                     if not self.training:
                         return "'{}' has been modified.".format(key)
-            self.jot.write(key, jot, target)
+            self.jot.write(key, jot, targ)
     
     def jot_get(self, nick, target, key, rpi=None, globl=None, at=None, chain=None, embed=False):
         if self.training:
@@ -212,12 +212,11 @@ class Jot:
                 return jot['value'][0]
         return None
             
-    def jot_search(self, nick, channel, key):
+    def jot_search(self, nick, target, key):
         if self.training:
             return None
         result = "Results "
         count = 0
-        target = channel
         if target in self.jot.data:
             for k in self.jot.data[target]:
                 if key.lower() in k:
@@ -230,7 +229,6 @@ class Jot:
         return nick + ": " + str(count) + " " + result
     
     def jot_remove(self, nick, target, key, rpi=None, globl=None):
-        channel = target
         if self.training or nick in list(self.bot.channels[target].modes['@']):
             rpi = int(rpi) if rpi else -1
             target = '' if globl else target
