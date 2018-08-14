@@ -281,10 +281,9 @@ class Jot:
     def log(self, feature, a):
         print('JOT:\t' + feature + str(a))
     
-    @irc3.event(r'^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<data>.*?)\s*$')
-    def hack_for_treesbot(self, nick, channel, data, **kw):
+    @irc3.event(r'^(@\S+ )?:(?P<nick>\S+)!\S+@\S+ PRIVMSG (?P<channel>\S+) :(?P<o>.?)(?P<key>\d+(?:\.\d+)?|toke)(?P<c>.?)\s*$')
+    def hack_for_treesbot(self, nick, channel, o,key,c, **kw):
         do = None
-        (o,key,c) = (data[0],data[1:-1],data[-1])
         if o == '!':
             do = key + c
         if o in ['[','{']:
