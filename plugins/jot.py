@@ -215,18 +215,32 @@ class Jot:
     def jot_search(self, nick, target, key):
         if self.training:
             return None
-        result = "Results "
+        result = ""
         count = 0
+        key = key.lower()
         if target in self.jot.data:
             for k in self.jot.data[target]:
-                if key.lower() in k:
+                if key in k:
                     result = result + " " + self.controlchar + k + " "
                     count+=1
+                else:
+                    for v in self.jot.data[target][k]['value']:
+                        if key in v:
+                            result = result + " " + self.controlchar + k + " "
+                            count+=1
+        
+        result = "Local Results ("+ str(count) +")"+ result + " || Global Results ({count})"
+        count = 0
         for k in self.jot.data['']:
             if key.lower() in k:
                 result = result + " " + self.controlchar + k + " "
                 count+=1
-        return nick + ": " + str(count) + " " + result
+            else:
+                for v in self.jot.data[''][k]['value']:
+                    if key in v:
+                        result = result + " " + self.controlchar + k + " "
+                        count+=1
+        return nick + ": " + result.format(count=count)
     
     def jot_remove(self, nick, target, key, rpi=None, globl=None):
         if self.training or nick in list(self.bot.channels[target].modes['@']):
