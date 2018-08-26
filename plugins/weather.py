@@ -43,7 +43,7 @@ class WeatherIRC3:
                     'csummary': fio.currently['summary'].lower(),
                     'hsummary': fio.hourly['summary'].lower(),
                 }
-                output="{nick}: Right now, {csummary}, {ftemp:.0f}F/{ctemp:.0f}C with a high of {fhigh:.0f}F/{chigh:.0f}C and low of {flow:.0f}F/{clow:.0f}C. There is {humidity:.0%} humidity, and the wind is {mwind:.0f}MPH/{kwind:.0f}KPH {wbearing}. Then, {hsummary} - {location} - https://darksky.net/poweredby/"
+                output="{nick}: Right now, {csummary}, {ftemp:.0f}F/{ctemp:.0f}C with a high of {fhigh:.0f}F/{chigh:.0f}C and low of {flow:.0f}F/{clow:.0f}C. Humidity is {humidity:.0%}, and the wind is {mwind:.0f}MPH/{kwind:.0f}KPH {wbearing}. Then, {hsummary} - {location} - https://darksky.net/poweredby/"
                 self.bot.privmsg(channel, output.format(**data))
                 pstore[mask.lnick] = where
             else:
