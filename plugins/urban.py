@@ -36,6 +36,7 @@ class UrbanDict:
                 defi = udict[idx]['permalink']
             else:
                 defi = udict[idx]['definition']
+            defi = ''.join(''.join(defi.split('[')).split(']'))
             if defi.lower().startswith(udict[idx]['word'].lower()+":"):
                 defi = defi[len(udict[idx]['word'])+1:].strip()
             if (len(defi)+len(args['word'])) > 449:

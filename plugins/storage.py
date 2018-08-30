@@ -1,5 +1,5 @@
 class Storage():
-    def __init__(self):
+    def __init__(self, load=None):
         self.data = {}
     
     def __setitem__(self, key, value, root=None):

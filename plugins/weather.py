@@ -19,7 +19,7 @@ class WeatherIRC3:
             where = ' '.join(args['<location>']).strip()
             where = where if where != '' else None if mask.lnick not in pstore else pstore[mask.lnick]
             if where:
-                location = self.bot.googlemaps().geocode(where)[0]
+                location = self.bot.gmap_geocode(where)[0]
                 fio = ForecastIO.ForecastIO(self.apikey,
                     units=ForecastIO.ForecastIO.UNITS_US,
                     exclude='minutely,flags',

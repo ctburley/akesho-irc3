@@ -11,3 +11,7 @@ class Googlemaps_IRC3:
     @irc3.extend
     def googlemaps(self):
         return self.client
+    
+    @irc3.extend
+    def gmap_geocode(self, location):
+        return self.client.geocode(location)
