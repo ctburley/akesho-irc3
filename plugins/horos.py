@@ -2,16 +2,21 @@ import irc3
 from irc3.plugins.command import command
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
-
+from irc3.plugins.cron import cron
 
 @irc3.plugin
 class Scopey:
     def __init__(self, bot):
         self.bot = bot
         self.signs = "aquarius pisces aries taurus gemini cancer leo virgo libra scorpio sagittarius capricorn"
-        print("got here")
-        self.short = self.scrape_short()
+        print("The Oracle is in.")
+        self.update()
         
+    @cron("47 2 * * *")
+    def update(self):
+        self.short = self.scrape_short()
+        print("horos updates")
+
     @command
     def horo(self, mask, channel, args):
         """Get horoscope for <sign>
