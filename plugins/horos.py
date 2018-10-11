@@ -1,4 +1,4 @@
-import irc3
+import irc3, shelve
 from irc3.plugins.command import command
 from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
@@ -9,9 +9,13 @@ class Scopey:
     def __init__(self, bot):
         self.bot = bot
         self.signs = "aquarius pisces aries taurus gemini cancer leo virgo libra scorpio sagittarius capricorn"
-        print("The Oracle is in.")
         self.update()
-        
+        self.store = {}
+        with shelve.open('data/horos') as pstore:
+            for item in pstore:
+                self.store[item] = pstore[item]
+        print("The Oracle is in.")
+                
     @cron("47 2 * * *")
     def update(self):
         self.short = self.scrape_short()
@@ -20,12 +24,19 @@ class Scopey:
     @command
     def horo(self, mask, channel, args):
         """Get horoscope for <sign>
-            %%horo <sign>"""
-        sign = args['<sign>'].lower()
-        if sign in self.signs:
-            self.bot.privmsg(channel, "Today's horoscope for {}: {}".format(sign, self.short[sign]))
+            %%horo [<sign>]"""
+        sign = args['<sign>'].lower() if args['<sign>'] else None if mask.lnick not in self.store else self.store[mask.lnick]
+        if sign:
+            if sign in self.signs:
+                self.bot.privmsg(channel, "Today's horoscope for {}: {}".format(sign, self.short[sign]))
+                if mask.lnick not in self.store:
+                    self.store[mask.lnick] = sign
+                    with shelve.open('data/horos') as pstore:
+                        pstore[mask.lnick] = sign
+            else:
+                self.bot.privmsg(channel, "Sign must be one of: {}".format(self.signs))
         else:
-            self.bot.privmsg(channel, "Sign must be one of: {}".format(self.signs))
+            self.bot.privmsg(channel, "Command must be used with a sign at least once.")
             
     def scrape_short(self):
         soup = BeautifulSoup(
