@@ -21,7 +21,7 @@ class Scopey:
         self.short = self.scrape_short()
         print("horos updates")
 
-    @command
+    @command(aliases=['hor','horoscope'])
     def horo(self, mask, channel, args):
         """Get horoscope for <sign>
             %%horo [<sign>]"""
