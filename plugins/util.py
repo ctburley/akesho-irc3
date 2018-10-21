@@ -12,33 +12,25 @@ class Utility:
 
     def __init__(self, bot):
         self.bot = bot
+        self.med_options = (
+            'Snorlaxian, Oakee or alsooakee, tinysprout, and bkembo: have you taken your meds?',
+            'bkembo: have you, tinysprout, Snorlaxian, and Oakee or alsooakee taken your meds?',
+            'bEeP BoOp ThIs iS A MeDiCaTIOn rEmInDe FoR  bKeMbO, tInYsPrOuT, sNoRlAxIaN, anD OaKeE oR AlSOoAkEe',
+            "Oakee or alsooakee, guee what time it is! That's right! It's medication time! bkembo, Snorlaxian, tell tinysprout what they've won!",
+            "If Oakee or alsooakee, Snorlaxian, tinysprout, and bkembo aren't on drugs... they need to be.",)
+        self.next_med = random.choice(self.med_options)
         print("UTIL ~ LOADE")
     
     #move these into alerts
     @cron('30 1 * * *')
     def med(s):
-        options = (
-            'Snorlaxian, Oakee or alsooakee, tinysprout, and bkembo: have you taken your meds?',
-            'bkembo: have you, tinysprout, Snorlaxian, and Oakee or alsooakee taken your meds?',
-            'bEeP BoOp ThIs iS A MeDiCaTIOn rEmInDe FoR  bKeMbO, tInYsPrOuT, sNoRlAxIaN, anD OaKeE oR AlSOoAkEe',
-            "Oakee or alsooakee, guee what time it is! That's right! It's medication time! bkembo, Snorlaxian, tell tinysprout what they've won!",
-            "If Oakee or alsooakee, Snorlaxian, tinysprout, and bkembo aren't on drugs... they need to be.",)
-        s.bot.privmsg('#textfriends', random.choice(options))
+        s.bot.privmsg('#textfriends', self.next_med)
+        self.next_med = random.choice(self.med_options)
     
     @cron('5 1 * * *')
     def medi(cation):
-        options = (
-            'Snorlaxian, Oakee or alsooakee, tinysprout, and bkembo: have you taken your meds?',
-            'bkembo: have you, tinysprout, Snorlaxian, and Oakee or alsooakee taken your meds?',
-            'bEeP BoOp ThIs iS A MeDiCaTIOn rEmInDe FoR  bKeMbO, tInYsPrOuT, sNoRlAxIaN, anD OaKeE oR AlSOoAkEe',
-            "Oakee or alsooakee, guee what time it is! That's right! It's medication time! bkembo, Snorlaxian, tell tinysprout what they've won!",
-            "If Oakee or alsooakee, Snorlaxian, tinysprout, and bkembo aren't on drugs... they need to be.",)
-        cation.bot.privmsg('#textfriends', random.choice(options))
-    
-    
-    @cron('00 23 * * *')
-    def smed(s):
-        s.bot.privmsg('#textfriends', 'Snorlaxian, have you taken your meds?')
+        s.bot.privmsg('#textfriends', self.next_med)
+        self.next_med = random.choice(self.med_options)
     
     @command(permission='admin',show_in_help_list=False)
     def goto(s,m,t,a):
@@ -68,6 +60,10 @@ class Utility:
         """
         self.bot.quit()
         exit()
+    
+    #@irc3.extend
+    #def has_permission(self, nick, channel, perm):
+        
     
     
 class mode_based_policy:
