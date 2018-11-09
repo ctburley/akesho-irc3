@@ -281,7 +281,7 @@ class Plugin:
             zone_text = ''.join(sorted([("  {}: {}".format(z, ', '.join(zones[z])) if len(zones[z]) > 0  else '') for z in zones]))
             delta = timedelta(minutes=(20-time.minute)-1,seconds=(60-time.second))
             (self.music_last, mt) = (now, self.music_text) if now-self.music_last > timedelta(minutes=50) else (self.music_last, '')
-            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20!'+zone_text+'! '+mt)
+            self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20!'+zone_text+'! ')
         if now-self.store.last_update > timedelta(24):
             self.store.update()
 
@@ -296,13 +296,11 @@ class Store20:
     def save(self):
         with shelve.open(self.tzfile) as tzos:
             tzos['locations'] = self.location
-            tzos['offsets'] = self.offset
             tzos['since'] = self.last_update
             
     def load(self):
         with shelve.open(self.tzfile) as tzos:
-            self.last_update = tzos['since'] if 'since' in tzos else datetime.utcnow()
-            self.offset = tzos['offsets'] if 'offsets' in tzos else {}
+            self.last_update = datetime.utcnow()
             self.location = tzos['locations'] if 'locations' in tzos else {}
         self.update()
         print("Store20 Loaded.")
@@ -318,7 +316,6 @@ class Store20:
             self.offset[offset].append(pid)
         self.last_update = datetime.utcnow()
         print('Time Zone Offsets Updated')
-        self.save()
         
     def get_next(self):
         now = datetime.utcnow()
@@ -370,13 +367,9 @@ class Store20:
         
     def remove(self, place_id):
         if place_id in self.location:
-            self.location[place_id]
-            offset = self.location[place_id]['timezone']['rawOffset'] + self.location[place_id]['timezone']['dstOffset']
-            self.offset[offset].remove(place_id)
-            if self.offset[offset] == {}:
-                del self.offset[offset]
+            del self.location[place_id]
             print("Location removed: "+place_id)
-            self.update()
             self.save()
+            self.update()
             return True
         return False
