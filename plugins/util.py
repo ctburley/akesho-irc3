@@ -9,28 +9,25 @@ import logging
 
 @irc3.plugin
 class Utility:
-
+    next_med = lambda: random.choice((
+            'Oakee or alsooakee, tinysprout, and bkembo: have you taken your meds?',
+            'bkembo: have you, tinysprout, and Oakee or alsooakee taken your meds?',
+            'bEeP BoOp ThIs iS A MeDiCaTIOn rEmInDe FoR  bKeMbO, tInYsPrOuT, anD OaKeE oR AlSOoAkEe',
+            "Oakee or alsooakee, guee what time it is! That's right! It's medication time! bkembo, tell tinysprout what they've won!",
+            "If Oakee or alsooakee, tinysprout, and bkembo aren't on drugs... they need to be.",))
+        
     def __init__(self, bot):
         self.bot = bot
-        self.med_options = (
-            'Snorlaxian, Oakee or alsooakee, tinysprout, and bkembo: have you taken your meds?',
-            'bkembo: have you, tinysprout, Snorlaxian, and Oakee or alsooakee taken your meds?',
-            'bEeP BoOp ThIs iS A MeDiCaTIOn rEmInDe FoR  bKeMbO, tInYsPrOuT, sNoRlAxIaN, anD OaKeE oR AlSOoAkEe',
-            "Oakee or alsooakee, guee what time it is! That's right! It's medication time! bkembo, Snorlaxian, tell tinysprout what they've won!",
-            "If Oakee or alsooakee, Snorlaxian, tinysprout, and bkembo aren't on drugs... they need to be.",)
-        self.next_med = random.choice(self.med_options)
         print("UTIL ~ LOADE")
     
     #move these into alerts
     @cron('30 1 * * *')
     def med(s):
-        s.bot.privmsg('#textfriends', self.next_med)
-        self.next_med = random.choice(self.med_options)
+        s.bot.privmsg('#textfriends', Utility.next_med())
     
     @cron('5 1 * * *')
     def medi(cation):
-        s.bot.privmsg('#textfriends', self.next_med)
-        self.next_med = random.choice(self.med_options)
+        cation.bot.privmsg('#textfriends', Utility.next_med)
     
     @command(permission='admin',show_in_help_list=False)
     def goto(s,m,t,a):
@@ -61,9 +58,6 @@ class Utility:
         self.bot.quit()
         exit()
     
-    #@irc3.extend
-    #def has_permission(self, nick, channel, perm):
-        
     
     
 class mode_based_policy:
