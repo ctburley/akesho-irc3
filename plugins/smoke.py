@@ -304,16 +304,15 @@ class Store20:
             self.last_update = tzos['since'] if 'since' in tzos else datetime.utcnow()
             self.offset = tzos['offsets'] if 'offsets' in tzos else {}
             self.location = tzos['locations'] if 'locations' in tzos else {}
-            
+        self.update()
         print("Store20 Loaded.")
-        if (datetime.utcnow() - self.last_update) > timedelta(24):
-            self.update()
+        
         
     def update(self):
         self.offset = {}
         for pid in self.location:
-            timezone = self.location[pid]['timezone'] = self.bot.googlemaps().timezone(self.location[pid]['geocode']['geometry']['location'])
-            offset = timezone['rawOffset']+timezone['dstOffset']
+            self.location[pid]['timezone'] = self.bot.googlemaps().timezone(self.location[pid]['geocode']['geometry']['location'])
+            offset = self.location[pid]['timezone']['rawOffset']+self.location[pid]['timezone']['dstOffset']
             if offset not in self.offset:
                 self.offset[offset] = []
             self.offset[offset].append(pid)
@@ -377,6 +376,7 @@ class Store20:
             if self.offset[offset] == {}:
                 del self.offset[offset]
             print("Location removed: "+place_id)
+            self.update()
             self.save()
             return True
         return False
