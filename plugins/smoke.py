@@ -205,7 +205,7 @@ class Plugin:
             %%del420 <location>
         """
         if self.store.remove(args['<location>']):
-            self.bot.privmsg(nick.nick, 'Ok.')
+            self.bot.privmsg(target, 'Ok.')
     
     @command(permission='admin')
     def add420(self, mask, target, args):
@@ -214,7 +214,7 @@ class Plugin:
         """
         where = ' '.join(args['<location>'])
         if self.store.add(where, mask.nick):
-            self.bot.privmsg(mask.nick, 'Ok.')
+            self.bot.privmsg(target, 'Location added.')
             
     @command(permission='admin')
     def rename420(self, mask, target, args):
@@ -222,7 +222,7 @@ class Plugin:
             %%rename420 <pid> <newname>...
         """
         if self.store.rename(args['<pid>'], ' '.join(args['<newname>'])):
-            self.bot.privmsg(mask.nick, 'Ok.')
+            self.bot.privmsg(target, 'Ok.')
             
     @command
     def list420(self, mask, target, args):
@@ -252,8 +252,8 @@ class Plugin:
     def my420(self):
         #self.lock420 = self.announce_to
         #self.current[self.announce_to].cancel()
-        self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
-        self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
+        #self.bot.privmsg(self.announce_to, choice(['Oh!','Ooo!','Whoops!','Hmm? Ah..']))
+        #self.bot.loop.call_later(7,self.bot.privmsg, self.announce_to, "\x01ACTION gets "+choice(['up.','up to get something.','something.','ready.','excited.'])+"\x01")
         #if not self.smoking(self.announce_to):
         #    if choice(['a','b','c','d']) == 'c':
         #        self.bot.loop.call_later(32, self.bot.privmsg, self.announce_to, "!getin")
@@ -263,7 +263,7 @@ class Plugin:
         #    self.bot.loop.call_later((4*60)+40, self.warn20Second, self.announce_to)
         #    self.bot.loop.call_later(37, self.bot.privmsg, self.announce_to, "There we go.")
         #self.bot.loop.call_later(40, self.imin, IrcString(self.bot.nick+'!user@host'), self.announce_to, [])
-        self.bot.loop.call_later(5*61, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','shrieks "ACHE SHAW" at the top of their lungs and hits the bong like a madperson!'])+"\x01")
+        self.bot.loop.call_later(5*61, self.bot.privmsg, self.announce_to, "\x01ACTION "+choice(['hits it!','tokes.','knocks the bong over! :(','gets faded...','hits the bong like a madbot!'])+"\x01")
         
     @cron('*/5 * * * *')
     def check420(self):
