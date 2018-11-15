@@ -278,7 +278,7 @@ class Plugin:
                     ap = 'AM' if time.hour < 12 else 'PM'
                     if zone not in zones[ap]:
                         zones[ap].append(zone)
-            zone_text = ''.join(sorted([("  {}: {}".format(z, ', '.join(zones[z])) if len(zones[z]) > 0  else '') for z in zones]))
+            zone_text = ''.join(sorted([("   {}: {}".format(z, '; '.join(zones[z])) if len(zones[z]) > 0  else '') for z in zones]))
             delta = timedelta(minutes=(20-time.minute)-1,seconds=(60-time.second))
             (self.music_last, mt) = (now, self.music_text) if now-self.music_last > timedelta(minutes=50) else (self.music_last, '')
             self.bot.loop.call_later(delta.seconds, self.bot.privmsg, self.announce_to, 'Happy 4:20!'+zone_text+'! ')
