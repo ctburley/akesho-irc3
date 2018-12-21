@@ -1,7 +1,6 @@
 import math, shelve
 import time
 import irc3
-import googlemaps
 from irc3.plugins.cron import cron
 from irc3.utils import IrcString
 from datetime import datetime
@@ -310,6 +309,7 @@ class Store20:
         self.offset = {}
         for pid in self.location:
             self.location[pid]['timezone'] = self.bot.googlemaps().timezone(self.location[pid]['geocode']['geometry']['location'])
+            print(self.location[pid]['name'])
             offset = self.location[pid]['timezone']['rawOffset']+self.location[pid]['timezone']['dstOffset']
             if offset not in self.offset:
                 self.offset[offset] = []
