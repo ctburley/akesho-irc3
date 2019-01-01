@@ -81,8 +81,14 @@ class Henk:
             
             %%dekhelp
         """
-        self.dek_send(target, 'welcome to shitty dek hunt, !fren or !beng, '
-                              'check your !deks and leader boards, !friendos and !bangers')
+        tDiff = ""
+        if self.load_deks(target):
+            if (self.huntEnabled[target]):
+                if (self.dekSpotted[target]):
+                    stopTime = time.time()
+                    tDiff = " ("+str(int(stopTime - self.dekTime[target]))+")"
+        
+        self.dek_send(target, 'welcome to shitty dek hunt, !fren or !beng, check your !deks and leader boards, !friendos and !bangers'+self.bot.chain("super " + tDiff))
     
     @command(permission='owner',show_in_help_menu=False)
     def dektest(self, mask, target, args):
