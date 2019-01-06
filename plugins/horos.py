@@ -19,6 +19,7 @@ class Scopey:
     @cron("47 2 * * *")
     def update(self):
         self.short = self.scrape_short()
+        print(self.short)
         print("horos updates")
 
     @command(aliases=['hor','horoscope'])
@@ -53,6 +54,9 @@ class Scopey:
         horos = {}
         cur_horo = None
         last = '.'
+        for tag in content:
+            a = '.'
+        content = tag
         for tag in content:
             if tag.name is not None:
                 if read_flag:
