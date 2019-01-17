@@ -19,7 +19,7 @@ class Henk:
             os.makedirs(self.directory)
             
         ( self.huntEnabled, self.dekSpotted, self.lineCount,
-          self.dekDelay, self.dekTime, self.quietFail ) = [{} for _ in range(6)]
+          self.dekDelay, self.dekTime, self.quietFail, self.lastSuccess ) = [{} for _ in range(7)]
         
         print("HENK ~ Deks Loaded Redy 2 Go")
 
@@ -38,6 +38,7 @@ class Henk:
             self.quietFail[filename] = False if 'quiet' not in data else data['quiet']
             self.dekTime[filename] = -1 if 'dekTime' not in data else data['dekTime']
             self.dekSpotted[filename] = (self.dekTime[filename] is not -1)
+            self.lastSuccess[filename] = self.bot.nick if 'lastSuccess' not in data else data['lastSuccess']
         return True
 
     @command(permission='admin',show_in_help_menu=False)
@@ -99,6 +100,7 @@ class Henk:
         if not self.load_deks(target):
             return
         self.lineCount[target] = 2000
+        self.bot.privmsg(target, self.lastSuccess[target])
         self.on_line(target, 'PRIVMSG', None, mask)
         
     @command(permission='admin')
@@ -170,30 +172,35 @@ class Henk:
 
         if (self.huntEnabled[target]):
             if (self.dekSpotted[target]):
-                stopTime = time.time()
-                tDiff = stopTime - self.dekTime[target]
-                record = self.get_record(target, mask.nick)
-                record['f'] += 1
-                fasts = ""
-                if ('fast' in record):
-                    if (tDiff < record['fast']):
-                        fasts = " Wowee that is your fastest dek yet!"
+                if self.lastSuccess[target] == mask.nick:
+                    self.dek_send(target, "      flap flap flap! this dek is shy and scurries away from you!")
+                else:
+                    stopTime = time.time()
+                    tDiff = stopTime - self.dekTime[target]
+                    record = self.get_record(target, mask.nick)
+                    record['f'] += 1
+                    fasts = ""
+                    if ('fast' in record):
+                        if (tDiff < record['fast']):
+                            fasts = " Wowee that is your fastest dek yet!"
+                            record['fast'] = tDiff
+                    else:
                         record['fast'] = tDiff
-                else:
-                    record['fast'] = tDiff
-                    
-                if ('slow' in record):
-                    if (tDiff > record['slow']):
-                        fasts = " That was your longest so far, what took you so long bby?"
+                        
+                    if ('slow' in record):
+                        if (tDiff > record['slow']):
+                            fasts = " That was your longest so far, what took you so long bby?"
+                            record['slow'] = tDiff
+                    else:
                         record['slow'] = tDiff
-                else:
-                    record['slow'] = tDiff
-                
-                self.setRecord(target, mask.nick, record)
-                with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
-                    data['dekTime'] = -1
-                self.dek_send(target, "henk henk henk! after " + str(round(tDiff, 3)) + " seconds; " + str(mask.nick) + ", " + str(record['f']) + " deks now owe you a life debt." + fasts)
-                self.dekSpotted[target] = False
+                    
+                    self.setRecord(target, mask.nick, record)
+                    with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
+                        data['dekTime'] = -1
+                        data['lastSuccess'] = mask.nick
+                    self.lastSuccess[target] = mask.nick
+                    self.dek_send(target, "henk henk henk! after " + str(round(tDiff, 3)) + " seconds; " + str(mask.nick) + ", " + str(record['f']) + " deks now owe you a life debt." + fasts)
+                    self.dekSpotted[target] = False
             else:
                 if not self.quietFail[target]:
                     self.dek_send(target, "there is no dek, why you do that?")
@@ -209,30 +216,33 @@ class Henk:
 
         if (self.huntEnabled[target]):
             if (self.dekSpotted[target]):
-                stopTime = time.time()
-                tDiff = stopTime - self.dekTime[target]
-                record = self.get_record(target, mask.nick)
-                record['b'] += 1
-                fasts = ""
-                if ('fast' in record):
-                    if (tDiff < record['fast']):
-                        fasts = " Wowee that is your fastest dek yet!"
+                if self.lastSuccess[target] == mask.nick:
+                    self.dek_send(target, "      flap flap flap! this dek is wary and you miss!")
+                else:
+                    stopTime = time.time()
+                    tDiff = stopTime - self.dekTime[target]
+                    record = self.get_record(target, mask.nick)
+                    record['b'] += 1
+                    fasts = ""
+                    if ('fast' in record):
+                        if (tDiff < record['fast']):
+                            fasts = " Wowee that is your fastest dek yet!"
+                            record['fast'] = tDiff
+                    else:
                         record['fast'] = tDiff
-                else:
-                    record['fast'] = tDiff
-                    
-                if ('slow' in record):
-                    if (tDiff > record['slow']):
-                        fasts = " That was your longest so far, nearly got away!"
+                        
+                    if ('slow' in record):
+                        if (tDiff > record['slow']):
+                            fasts = " That was your longest so far, nearly got away!"
+                            record['slow'] = tDiff
+                    else:
                         record['slow'] = tDiff
-                else:
-                    record['slow'] = tDiff
-                
-                self.setRecord(target, mask.nick, record)
-                with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
-                    data['dekTime'] = -1
-                self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
-                self.dekSpotted[target] = False
+                    
+                    self.setRecord(target, mask.nick, record)
+                    with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
+                        data['dekTime'] = -1
+                    self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
+                    self.dekSpotted[target] = False
             else:
                 if not self.quietFail[target]:
                     self.dek_send(target, "watch out, is no dek, no pew pew!")
