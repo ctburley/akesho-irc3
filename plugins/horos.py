@@ -49,25 +49,14 @@ class Scopey:
                     ),
                     features="html.parser"
                 )
-        content = soup.find('div','entry-content')
-        read_flag = False
+        entry_content = soup.find('div','entry-content')
+        pane_container = entry_content.find("div", {"class": "su-tabs-panes"})
+        content_panes = pane_container.findAll("div", {"class": "su-tabs-pane"})
+        
         horos = {}
-        cur_horo = None
-        last = '.'
-        for tag in content:
-            a = '.'
-        content = tag
-        for tag in content:
-            if tag.name is not None:
-                if read_flag:
-                    if tag.name == last:
-                        read_flag = False
-                    else:
-                        if tag.name == 'h4':
-                            cur_horo = tag.string.split(' ')[1].lower()
-                        if tag.name == 'p':
-                            horos[cur_horo] = tag.text
-                    last = tag.name
-                if tag.string == "Patrick Arundell’s Today’s Horoscopes":
-                    read_flag = True
+        for pane in content_panes:
+            bits = pane.findAll()
+            horos[bits[0].text.split()[1].lower()] = bits[2].text.split('.')[0]+'. - https://cafeastrology.com/dailyhoroscopesall.html'
+        
         return horos
+        soup.findAll("div", {"class": "stylelistrow"})
