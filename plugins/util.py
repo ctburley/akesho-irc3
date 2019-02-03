@@ -71,7 +71,7 @@ class mode_based_policy:
             'voice':   lambda mask,t: mask.nick in list(self.context.channels[t].modes['+']) or self.has_permission['hop'](mask,t),
             'hop':     lambda mask,t: mask.nick in list(self.context.channels[t].modes['%']) or self.has_permission['admin'](mask,t),
             'admin':   lambda mask,t: mask.nick in list(self.context.channels[t].modes['@']) or self.has_permission['owner'](mask,t),
-            'owner':   lambda mask,t: fnmatch.fnmatch(mask, '*@user/ctburley') or mask.nick in list(self.context.channels[t].modes['!'])
+            'owner':   lambda mask,t: fnmatch.fnmatch(mask, '*@user/titter') or mask.nick in list(self.context.channels[t].modes['!'])
         }
         
     def __call__(self, predicates, meth, client, target, args, **kwargs):
