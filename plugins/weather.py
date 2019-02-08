@@ -8,7 +8,7 @@ class WeatherIRC3:
         self.bot = bot
         self.apikey=self.bot.config.get('weather', {}).get('apikey',None)
         self.toc=lambda x: (x-32)/1.8
-        self.bearing=lambda x: (["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE","S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"])[int(16*(x/360))]
+        self.bearing=lambda x: (["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE","S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"])[int(16*(((x+11.25)%360)/360))]
         self.store = {}
         
     @command(aliases=['we'],use_shlex=False)
