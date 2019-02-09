@@ -15,6 +15,8 @@ class StringModifier:
     def __init__(self, bot):
         self.bot = bot
         self.features = {
+            'tm':           ['tm',                          self.tm],
+            'touch':        ['touch',                       self.touch],
             'stripformat':  ['strip(?:f(?:ormat)?)?',       self.stripformat],
             'rainbow':      ['(?:rainbow|rb)',              self.rainbow],
             'wrainbow':     ['(?:wrainbow|wrb)',            self.wrainbow],
@@ -85,6 +87,12 @@ class StringModifier:
     
     def italicize(self, text):
         return "\x1D"+text
+    
+    def touch(self, text):
+        return '༼ つ ◕_◕ ༽つ'+self.super(text)
+    
+    def tm(self, text):
+        return text.strip().title() + '™'
     
     def underline(self, text):
         return "\x1F"+text
