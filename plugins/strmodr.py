@@ -50,7 +50,7 @@ class StringModifier:
         
     def rainbow(self, text):
         text = self.stripformat(text)
-        return ''.join([u"\x03{:02}{}".format((l%10)+3,text[l]) for l in range(len(text))])
+        return ''.join([u"\x03{:02}{}".format((l%10)+3,val) for l,val in enumerate(text)])
     
     def wrainbow(self, text):
         text = self.stripformat(text)

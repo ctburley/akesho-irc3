@@ -350,10 +350,9 @@ class Henk:
                                 and 'fast' in rec or 'fast' in rec and rec['fast'] < top['fast'] else (top, top_channel)
                             (pot, pot_channel) = (rec, file) if pot is None \
                                 and 'slow' in rec or 'slow' in rec and rec['slow'] > pot['slow'] else (pot, pot_channel)
-            f = '' if top is None else "Fastest dekerino is " + top['name'] + " in "+top_channel+" with " + str(
-                round(top['fast'], 5)) + " seconds. "
+            f = '' if top is None else "Fastest dekerino is " + top['name'] + " with " + str(round(top['fast'], 5)) + " seconds. "
             s = '' if pot is None else "Longest time a dek has been free is " + str(round(pot['slow'])) + " seconds. " + \
-                                       pot['name'] + " ended that in "+pot_channel+"."
+                                       pot['name'] + " ended that."
         else:
             with shelve.open(self.directory+target.replace('#','_')) as records:
                 for name in records.keys():
