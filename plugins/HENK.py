@@ -91,7 +91,7 @@ class Henk:
         
         self.dek_send(target, 'welcome to shitty dek hunt, !fren or !beng, check your !deks and leader boards, !friendos and !bangers'+self.bot.chain("super " + tDiff))
     
-    @command(permission='owner',show_in_help_menu=False)
+    @command(permission='admin',show_in_help_menu=False)
     def dektest(self, mask, target, args):
         """test a dek
             %%dektest
