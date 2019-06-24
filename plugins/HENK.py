@@ -241,6 +241,8 @@ class Henk:
                     self.setRecord(target, mask.nick, record)
                     with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
                         data['dekTime'] = -1
+                        data['lastSuccess'] = mask.nick
+                    self.lastSuccess[target] = mask.nick
                     self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
                     self.dekSpotted[target] = False
             else:
