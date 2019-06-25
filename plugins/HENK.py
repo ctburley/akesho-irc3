@@ -172,7 +172,7 @@ class Henk:
 
         if (self.huntEnabled[target]):
             if (self.dekSpotted[target]):
-                if self.lastSuccess[target] == mask.nick:
+                if self.lastSuccess[target] == mask.nick and choice([1,2,3,4]) != 4:
                     self.dek_send(target, "      flap flap flap! this dek is shy and scurries away from you!")
                 else:
                     stopTime = time.time()
@@ -216,7 +216,7 @@ class Henk:
 
         if (self.huntEnabled[target]):
             if (self.dekSpotted[target]):
-                if self.lastSuccess[target] == mask.nick:
+                if self.lastSuccess[target] == mask.nick and choice([1,2,3,4]) != 4:
                     self.dek_send(target, "      flap flap flap! this dek is wary and you miss!")
                 else:
                     stopTime = time.time()
