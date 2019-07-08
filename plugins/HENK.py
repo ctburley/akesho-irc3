@@ -175,32 +175,35 @@ class Henk:
                 if self.lastSuccess[target] == mask.nick and choice([1,2]) != 2:
                     self.dek_send(target, "      flap flap flap! this dek is shy and scurries away from you!")
                 else:
-                    stopTime = time.time()
-                    tDiff = stopTime - self.dekTime[target]
-                    record = self.get_record(target, mask.nick)
-                    record['f'] += 1
-                    fasts = ""
-                    if ('fast' in record):
-                        if (tDiff < record['fast']):
-                            fasts = " Wowee that is your fastest dek yet!"
+                    if choice([1,2,3,4,5]) == 2:
+                        self.dek_send(target, "o o o o o o o o o o o o o~~~~~  slippery dek slips your hug and gets away try again!!")
+                    else:
+                        stopTime = time.time()
+                        tDiff = stopTime - self.dekTime[target]
+                        record = self.get_record(target, mask.nick)
+                        record['f'] += 1
+                        fasts = ""
+                        if ('fast' in record):
+                            if (tDiff < record['fast']):
+                                fasts = " Wowee that is your fastest dek yet!"
+                                record['fast'] = tDiff
+                        else:
                             record['fast'] = tDiff
-                    else:
-                        record['fast'] = tDiff
-                        
-                    if ('slow' in record):
-                        if (tDiff > record['slow']):
-                            fasts = " That was your longest so far, what took you so long bby?"
+                            
+                        if ('slow' in record):
+                            if (tDiff > record['slow']):
+                                fasts = " That was your longest so far, what took you so long bby?"
+                                record['slow'] = tDiff
+                        else:
                             record['slow'] = tDiff
-                    else:
-                        record['slow'] = tDiff
-                    
-                    self.setRecord(target, mask.nick, record)
-                    with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
-                        data['dekTime'] = -1
-                        data['lastSuccess'] = mask.nick
-                    self.lastSuccess[target] = mask.nick
-                    self.dek_send(target, "henk henk henk! after " + str(round(tDiff, 3)) + " seconds; " + str(mask.nick) + ", " + str(record['f']) + " deks now owe you a life debt." + fasts)
-                    self.dekSpotted[target] = False
+                        
+                        self.setRecord(target, mask.nick, record)
+                        with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
+                            data['dekTime'] = -1
+                            data['lastSuccess'] = mask.nick
+                        self.lastSuccess[target] = mask.nick
+                        self.dek_send(target, "henk henk henk! after " + str(round(tDiff, 3)) + " seconds; " + str(mask.nick) + ", " + str(record['f']) + " deks now owe you a life debt." + fasts)
+                        self.dekSpotted[target] = False
             else:
                 if not self.quietFail[target]:
                     self.dek_send(target, "there is no dek, why you do that?")
@@ -219,32 +222,35 @@ class Henk:
                 if self.lastSuccess[target] == mask.nick and choice([1,2]) != 2:
                     self.dek_send(target, "      flap flap flap! this dek is wary and you miss!")
                 else:
-                    stopTime = time.time()
-                    tDiff = stopTime - self.dekTime[target]
-                    record = self.get_record(target, mask.nick)
-                    record['b'] += 1
-                    fasts = ""
-                    if ('fast' in record):
-                        if (tDiff < record['fast']):
-                            fasts = " Wowee that is your fastest dek yet!"
+                    if choice([1,2,3,4,5]) == 2:
+                        self.dek_send(target, "o o o o o o o o o o o o o~~~~~  dodgy dek gets out of the way! take another shot!!")
+                    else:
+                        stopTime = time.time()
+                        tDiff = stopTime - self.dekTime[target]
+                        record = self.get_record(target, mask.nick)
+                        record['b'] += 1
+                        fasts = ""
+                        if ('fast' in record):
+                            if (tDiff < record['fast']):
+                                fasts = " Wowee that is your fastest dek yet!"
+                                record['fast'] = tDiff
+                        else:
                             record['fast'] = tDiff
-                    else:
-                        record['fast'] = tDiff
-                        
-                    if ('slow' in record):
-                        if (tDiff > record['slow']):
-                            fasts = " That was your longest so far, nearly got away!"
+                            
+                        if ('slow' in record):
+                            if (tDiff > record['slow']):
+                                fasts = " That was your longest so far, nearly got away!"
+                                record['slow'] = tDiff
+                        else:
                             record['slow'] = tDiff
-                    else:
-                        record['slow'] = tDiff
-                    
-                    self.setRecord(target, mask.nick, record)
-                    with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
-                        data['dekTime'] = -1
-                        data['lastSuccess'] = mask.nick
-                    self.lastSuccess[target] = mask.nick
-                    self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
-                    self.dekSpotted[target] = False
+                        
+                        self.setRecord(target, mask.nick, record)
+                        with shelve.open(self.directory+target.replace('#','_')+'-data') as data:
+                            data['dekTime'] = -1
+                            data['lastSuccess'] = mask.nick
+                        self.lastSuccess[target] = mask.nick
+                        self.dek_send(target, "pew, pew, pew; " + mask.nick + " kills a dek in the face in " + str(round(tDiff, 3)) + " seconds!" + fasts + " Watching from the shadows are " + str(record['b']) + " ghostly pairs of beady eyes.")
+                        self.dekSpotted[target] = False
             else:
                 if not self.quietFail[target]:
                     self.dek_send(target, "watch out, is no dek, no pew pew!")
