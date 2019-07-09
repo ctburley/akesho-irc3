@@ -176,7 +176,7 @@ class Henk:
                     self.dek_send(target, "      flap flap flap! this dek is shy and scurries away from you!")
                 else:
                     if choice([1,2,3,4,5]) == 2:
-                        self.dek_send(target, "o o o o o o o o o o o o o~~~~~  slippery dek slips your hug and gets away try again!!")
+                        self.dek_send(target, "o o o~~~~~  slippery dek slips your hug and gets away try again!!")
                     else:
                         stopTime = time.time()
                         tDiff = stopTime - self.dekTime[target]
@@ -223,7 +223,7 @@ class Henk:
                     self.dek_send(target, "      flap flap flap! this dek is wary and you miss!")
                 else:
                     if choice([1,2,3,4,5]) == 2:
-                        self.dek_send(target, "o o o o o o o o o o o o o~~~~~  dodgy dek gets out of the way! take another shot!!")
+                        self.dek_send(target, "o o o~~~~~  dodgy dek gets out of the way! take another shot!!")
                     else:
                         stopTime = time.time()
                         tDiff = stopTime - self.dekTime[target]
