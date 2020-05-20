@@ -17,7 +17,7 @@ google-auth==1.6.2
 google-auth-httplib2==0.0.3
 googlemaps==3.0.2
 gsearch==1.6.0
-httplib2==0.12.0
+httplib2==0.18.0
 httptools==0.0.11
 idna==2.7
 idna-ssl==1.1.0
