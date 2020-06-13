@@ -4,7 +4,7 @@ from irc3.plugins.command import command
 @irc3.plugin
 class Plugin:
   def __init__(self, bot):
-     = bot
+    self.bot = bot
     print("yt loaded")
 
   @irc3.event('^(@(?P<tags>\S+) )?:(?P<nick>\S+)(?P<mask>!\S+@\S+) PRIVMSG (?P<channel>\S+) :\.yt\s+(?P<target>.*?)$')
